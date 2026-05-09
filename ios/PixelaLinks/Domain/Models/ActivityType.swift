@@ -53,7 +53,7 @@ extension ActivityType {
         case .walkingDistance:               return "歩行距離（m）"
         case .runningDistance:               return "走行距離（m）"
         case .flightsClimbed:                return "上った階数（階）"
-        case .activeEnergyBurned:            return "アクティブ消費カロリー"
+        case .activeEnergyBurned:            return "アクティブ消費カロリー（kcal）"
         case .exerciseTime:                  return "運動時間"
         case .sleepDuration:                 return "睡眠時間"
         case .standTime:                     return "スタンド時間"
