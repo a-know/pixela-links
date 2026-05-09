@@ -52,7 +52,7 @@ extension ActivityType {
         case .stepCount:                     return "歩数"
         case .walkingDistance:               return "歩行距離（m）"
         case .runningDistance:               return "走行距離（m）"
-        case .flightsClimbed:                return "上った階数"
+        case .flightsClimbed:                return "上った階数（階）"
         case .activeEnergyBurned:            return "アクティブ消費カロリー"
         case .exerciseTime:                  return "運動時間"
         case .sleepDuration:                 return "睡眠時間"
@@ -86,7 +86,9 @@ extension ActivityType {
 
     var unit: String {
         switch self {
-        case .stepCount, .flightsClimbed, .handwashingCount, .fallCount,
+        case .flightsClimbed:
+            return "階"
+        case .stepCount, .handwashingCount, .fallCount,
              .loudEnvironmentCount, .headphoneLoudExposureCount,
              .photoLibraryAddCount, .screenshotCount,
              .significantLocationChangeCount, .callCount,
