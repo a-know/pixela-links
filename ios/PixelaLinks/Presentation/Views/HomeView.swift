@@ -21,20 +21,22 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             List {
+                if !account.isVerified {
+                    unverifiedBanner
+                }
+
                 ForEach(groupedTypes, id: \.0) { category, types in
                     Section(category.rawValue) {
                         ForEach(types) { type in
-                            Group {
-                                if type.isAvailableOnDevice {
-                                    NavigationLink {
-                                        ActivityDetailView(activityType: type)
-                                    } label: {
-                                        rowView(for: type)
-                                    }
-                                } else {
+                            if account.isVerified && type.isAvailableOnDevice {
+                                NavigationLink {
+                                    ActivityDetailView(activityType: type)
+                                } label: {
                                     rowView(for: type)
-                                        .foregroundStyle(.secondary)
                                 }
+                            } else {
+                                rowView(for: type)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -44,9 +46,34 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: onAccountTap) {
-                        Label(account.username, systemImage: "gearshape")
+                        Label(account.username.isEmpty ? "設定" : account.username,
+                              systemImage: "gearshape")
+                            .foregroundStyle(account.isVerified ? Color.primary : Color.orange)
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: - Subviews
+
+    private var unverifiedBanner: some View {
+        Section {
+            Button(action: onAccountTap) {
+                HStack(spacing: 12) {
+                    Image(systemName: "person.crop.circle.badge.exclamationmark")
+                        .font(.title2)
+                        .foregroundStyle(.orange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("接続の確認が必要です")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        Text("アカウント設定で「接続を確認する」を実行してください")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
             }
         }
     }

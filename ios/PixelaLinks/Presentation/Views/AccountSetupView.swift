@@ -13,7 +13,10 @@ struct AccountSetupView: View {
                     TextField("ユーザー名", text: $viewModel.username)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .onChange(of: viewModel.username) { _, _ in viewModel.resetValidation() }
+
                     SecureField("APIトークン", text: $viewModel.token)
+                        .onChange(of: viewModel.token) { _, _ in viewModel.resetValidation() }
                 }
 
                 Section {
@@ -31,7 +34,8 @@ struct AccountSetupView: View {
                     .disabled(!viewModel.canValidate)
 
                     if let message = viewModel.validationMessage {
-                        Label(message, systemImage: viewModel.validationIsSuccess ? "checkmark.circle" : "xmark.circle")
+                        Label(message, systemImage: viewModel.validationIsSuccess
+                              ? "checkmark.circle" : "xmark.circle")
                             .foregroundStyle(viewModel.validationIsSuccess ? Color.green : Color.red)
                             .font(.footnote)
                     }

@@ -17,6 +17,17 @@ final class AccountSetupViewModel {
     func prefill(with account: PixelaAccountConfig) {
         username = account.username
         token = KeychainStore.loadToken() ?? ""
+        if account.isVerified {
+            isValidated = true
+            validationIsSuccess = true
+            validationMessage = "✓ 接続済み"
+        }
+    }
+
+    func resetValidation() {
+        isValidated = false
+        validationIsSuccess = false
+        validationMessage = nil
     }
 
     func validate() async {
@@ -36,7 +47,7 @@ final class AccountSetupViewModel {
     }
 
     func save() -> PixelaAccountConfig {
-        let config = PixelaAccountConfig(username: username)
+        let config = PixelaAccountConfig(username: username, isVerified: isValidated)
         config.save()
         try? KeychainStore.saveToken(token)
         return config
