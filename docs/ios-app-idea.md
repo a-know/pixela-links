@@ -244,3 +244,7 @@ PUT https://pixe.la/v1/users/{username}/graphs/{graphID}/{date}/add
 ### 外出時間の初回設定
 
 `外出時間`（#23）はジオフェンシングで「自宅」を判定するため、初回設定時に自宅位置の登録が必要。
+
+### iPhone と Apple Watch の併用時における HealthKit データの重複排除
+
+`HKStatisticsQuery` に `.cumulativeSum` を指定した場合、HealthKit は複数ソース間の重複を自動的に排除する。歩数など累積型データでは、同じ時間帯に iPhone と Apple Watch の両方で記録がある場合、**Apple Watch のデータが優先**される。iPhone のみ・Apple Watch のみの場合はそのままそのデバイスのデータが使われる。アプリ側でソースを絞り込む処理は不要。
