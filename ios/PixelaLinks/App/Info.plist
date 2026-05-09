@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.pixela.links.refresh</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>PixelaLinks</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth接続回数をPixelaに送信するために使用します</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>カレンダーの予定数をPixelaに送信するために使用します</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>HealthKitの健康データをPixelaに送信するために使用します</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>バックグラウンドでも位置情報を継続して記録します</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>カメラロールの写真数・スクリーンショット数・動画時間をPixelaに送信するために使用します</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>完了したリマインダー数をPixelaに送信するために使用します</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>healthkit</string>
+		<string>location</string>
+		<string>bluetooth-central</string>
+		<string>processing</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict/>
+</dict>
+</plist>

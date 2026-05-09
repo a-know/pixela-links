@@ -1,0 +1,51 @@
+import Foundation
+
+struct PixelaRepositoryImpl: PixelaRepository {
+    func addPixel(delta: Double, graphID: String) async throws {
+        let account = PixelaAccountConfig.load()
+        guard account.isConfigured, let token = KeychainStore.loadToken() else {
+            throw PixelaError.authenticationFailed
+        }
+        let dateStr = DateFormatter.pixelaDate.string(from: .now)
+        let urlString = "https://pixe.la/v1/users/\(account.username)/graphs/\(graphID)/\(dateStr)/add"
+        guard let url = URL(string: urlString) else {
+            throw PixelaError.requestFailed(0)
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(token, forHTTPHeaderField: "X-USER-TOKEN")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(PixelPayload(quantity: formatQuantity(delta)))
+
+        let (_, response) = try await NetworkClient.foregroundSession.data(for: request)
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            throw PixelaError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+    }
+
+    func validateAccount(username: String, token: String) async throws {
+        guard let url = URL(string: "https://pixe.la/v1/users/\(username)/authentication") else {
+            throw PixelaError.requestFailed(0)
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue(token, forHTTPHeaderField: "X-USER-TOKEN")
+
+        let (_, response) = try await NetworkClient.foregroundSession.data(for: request)
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            throw PixelaError.authenticationFailed
+        }
+    }
+
+    private func formatQuantity(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(value))
+            : String(format: "%.2f", value)
+    }
+}
+
+private struct PixelPayload: Encodable {
+    let quantity: String
+}

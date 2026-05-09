@@ -1,0 +1,54 @@
+name: PixelaLinks
+options:
+  bundleIdPrefix: com.pixela
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    SWIFT_STRICT_CONCURRENCY: targeted
+
+targets:
+  PixelaLinks:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: PixelaLinks
+    info:
+      path: PixelaLinks/App/Info.plist
+      properties:
+        CFBundleDisplayName: PixelaLinks
+        UILaunchScreen: {}
+        NSHealthShareUsageDescription: "HealthKitの健康データをPixelaに送信するために使用します"
+        NSLocationAlwaysAndWhenInUseUsageDescription: "位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します"
+        NSLocationWhenInUseUsageDescription: "位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します"
+        NSLocationAlwaysUsageDescription: "バックグラウンドでも位置情報を継続して記録します"
+        NSPhotoLibraryUsageDescription: "カメラロールの写真数・スクリーンショット数・動画時間をPixelaに送信するために使用します"
+        NSBluetoothAlwaysUsageDescription: "Bluetooth接続回数をPixelaに送信するために使用します"
+        NSCalendarsUsageDescription: "カレンダーの予定数をPixelaに送信するために使用します"
+        NSRemindersUsageDescription: "完了したリマインダー数をPixelaに送信するために使用します"
+        UIBackgroundModes:
+          - fetch
+          - healthkit
+          - location
+          - bluetooth-central
+          - processing
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.pixela.links.refresh
+    entitlements:
+      path: PixelaLinks/App/PixelaLinks.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.background-delivery: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pixela.links
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
