@@ -7,9 +7,14 @@ import SwiftData
 final class ActivityDetailViewModel {
     let activityType: ActivityType
     var isEnabled: Bool = false
-    var graphID: String = ""
+    var selectedGraphID: String = ""
+
+    var graphs: [PixelaGraph] = []
+    var isLoadingGraphs: Bool = false
+    var graphsError: String? = nil
 
     private var hasLoaded = false
+    private let pixelaRepo: any PixelaRepository = PixelaRepositoryImpl()
 
     init(activityType: ActivityType) {
         self.activityType = activityType
@@ -24,7 +29,19 @@ final class ActivityDetailViewModel {
         )
         guard let config = try? context.fetch(descriptor).first else { return }
         isEnabled = config.isEnabled
-        graphID = config.pixelaGraphID
+        selectedGraphID = config.pixelaGraphID
+    }
+
+    func loadGraphs() async {
+        isLoadingGraphs = true
+        graphsError = nil
+        do {
+            graphs = try await pixelaRepo.fetchGraphs()
+        } catch {
+            graphsError = "グラフ一覧の取得に失敗しました"
+            graphs = []
+        }
+        isLoadingGraphs = false
     }
 
     func save(to context: ModelContext) {
@@ -35,10 +52,10 @@ final class ActivityDetailViewModel {
         )
         if let existing = try? context.fetch(descriptor).first {
             existing.isEnabled = isEnabled
-            existing.pixelaGraphID = graphID
+            existing.pixelaGraphID = selectedGraphID
             existing.updatedAt = .now
-        } else if isEnabled || !graphID.isEmpty {
-            let config = ActivitySyncConfig(activityType: activityType, graphID: graphID)
+        } else if isEnabled || !selectedGraphID.isEmpty {
+            let config = ActivitySyncConfig(activityType: activityType, graphID: selectedGraphID)
             config.isEnabled = isEnabled
             context.insert(config)
         }

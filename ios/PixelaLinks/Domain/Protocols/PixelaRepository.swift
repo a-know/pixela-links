@@ -3,6 +3,7 @@ import Foundation
 protocol PixelaRepository: Sendable {
     func addPixel(delta: Double, graphID: String) async throws
     func validateAccount(username: String, token: String) async throws
+    func fetchGraphs() async throws -> [PixelaGraph]
 }
 
 enum PixelaError: Error {

@@ -39,6 +39,26 @@ struct PixelaRepositoryImpl: PixelaRepository {
         }
     }
 
+    func fetchGraphs() async throws -> [PixelaGraph] {
+        let account = PixelaAccountConfig.load()
+        guard account.isConfigured, let token = KeychainStore.loadToken() else {
+            throw PixelaError.authenticationFailed
+        }
+        guard let url = URL(string: "https://pixe.la/v1/users/\(account.username)/graphs") else {
+            throw PixelaError.requestFailed(0)
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue(token, forHTTPHeaderField: "X-USER-TOKEN")
+
+        let (data, response) = try await NetworkClient.foregroundSession.data(for: request)
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            throw PixelaError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+        return try JSONDecoder().decode(GraphListResponse.self, from: data).graphs
+    }
+
     private func formatQuantity(_ value: Double) -> String {
         value.truncatingRemainder(dividingBy: 1) == 0
             ? String(Int(value))
@@ -48,4 +68,8 @@ struct PixelaRepositoryImpl: PixelaRepository {
 
 private struct PixelPayload: Encodable {
     let quantity: String
+}
+
+private struct GraphListResponse: Decodable {
+    let graphs: [PixelaGraph]
 }

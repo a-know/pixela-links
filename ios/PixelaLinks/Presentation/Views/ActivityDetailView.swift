@@ -35,18 +35,12 @@ struct ActivityDetailView: View {
                         viewModel.save(to: modelContext)
                         if newValue {
                             Task { await AppContainer.requestAuthorization(for: activityType) }
+                            Task { await viewModel.loadGraphs() }
                         }
                     }
+
                 if viewModel.isEnabled {
-                    LabeledContent("グラフID") {
-                        TextField("例: my-steps", text: $viewModel.graphID)
-                            .multilineTextAlignment(.trailing)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .onChange(of: viewModel.graphID) { _, _ in
-                                viewModel.save(to: modelContext)
-                            }
-                    }
+                    graphPickerRow
                 }
             }
 
@@ -100,8 +94,51 @@ struct ActivityDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.loadIfNeeded(from: modelContext)
+            if viewModel.isEnabled {
+                Task { await viewModel.loadGraphs() }
+            }
         }
     }
+
+    // MARK: - Graph Picker
+
+    @ViewBuilder
+    private var graphPickerRow: some View {
+        if viewModel.isLoadingGraphs {
+            LabeledContent("グラフ") {
+                ProgressView()
+            }
+        } else if !viewModel.graphs.isEmpty {
+            Picker("グラフ", selection: $viewModel.selectedGraphID) {
+                Text("（未選択）").tag("")
+                ForEach(viewModel.graphs) { graph in
+                    Text("\(graph.name)  [\(graph.id)]").tag(graph.id)
+                }
+            }
+            .onChange(of: viewModel.selectedGraphID) { _, _ in
+                viewModel.save(to: modelContext)
+            }
+        } else {
+            LabeledContent("グラフ") {
+                Button("グラフを取得") {
+                    Task { await viewModel.loadGraphs() }
+                }
+            }
+        }
+
+        if let error = viewModel.graphsError {
+            Label(error, systemImage: "exclamationmark.circle")
+                .font(.caption)
+                .foregroundStyle(.red)
+        } else if !viewModel.isLoadingGraphs && viewModel.graphs.isEmpty {
+            Label("グラフが見つかりません。Pixelaでグラフを作成してください。",
+                  systemImage: "info.circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - Helpers
 
     private func formatValue(_ value: Double) -> String {
         value.truncatingRemainder(dividingBy: 1) == 0
