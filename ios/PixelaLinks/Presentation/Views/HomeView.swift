@@ -65,10 +65,10 @@ struct HomeView: View {
                         .font(.title2)
                         .foregroundStyle(.orange)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("接続の確認が必要です")
+                        Text("Pixelaアカウントとの接続が必要です")
                             .font(.headline)
                             .foregroundStyle(.primary)
-                        Text("アカウント設定で「接続を確認する」を実行してください")
+                        Text("右上の歯車アイコンからPixelaアカウントとの接続をしてください")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
