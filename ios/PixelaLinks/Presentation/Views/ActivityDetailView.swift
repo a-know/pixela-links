@@ -69,7 +69,7 @@ struct ActivityDetailView: View {
                     LabeledContent("最終送信") {
                         Text(record.lastSyncedAt == .distantPast
                              ? "未送信"
-                             : record.lastSyncedAt.formatted(date: .abbreviated, time: .shortened))
+                             : DateFormatter.lastSent.string(from: record.lastSyncedAt))
                             .foregroundStyle(.secondary)
                     }
                     LabeledContent("本日の送信値") {
