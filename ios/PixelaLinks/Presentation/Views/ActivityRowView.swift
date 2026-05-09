@@ -1,5 +1,21 @@
 import SwiftUI
 
+struct ValueTypeBadge: View {
+    let isInteger: Bool
+
+    var body: some View {
+        Text(isInteger ? "INT" : "FLOAT")
+            .font(.system(size: 9, weight: .semibold, design: .monospaced))
+            .foregroundStyle(isInteger ? Color.blue : Color.orange)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background(
+                Capsule()
+                    .fill(isInteger ? Color.blue.opacity(0.12) : Color.orange.opacity(0.12))
+            )
+    }
+}
+
 struct ActivityRowView: View {
     let activityType: ActivityType
     let config: ActivitySyncConfig?
@@ -14,8 +30,11 @@ struct ActivityRowView: View {
                 .foregroundStyle(isEnabled ? Color.green : Color.secondary)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(activityType.displayName)
-                    .font(.body)
+                HStack(spacing: 6) {
+                    Text(activityType.displayName)
+                        .font(.body)
+                    ValueTypeBadge(isInteger: activityType.isIntegerValue)
+                }
 
                 if let note = activityType.hardwareNote {
                     Label(note, systemImage: "applewatch")

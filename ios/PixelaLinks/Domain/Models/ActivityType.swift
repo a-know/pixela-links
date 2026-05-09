@@ -49,38 +49,38 @@ enum ActivityType: String, CaseIterable, Identifiable {
 extension ActivityType {
     var displayName: String {
         switch self {
-        case .stepCount:                     return "歩数（int）"
-        case .walkingDistance:               return "歩行距離（m・float）"
-        case .runningDistance:               return "走行距離（m・float）"
-        case .flightsClimbed:                return "上った階数（階・int）"
-        case .activeEnergyBurned:            return "アクティブ消費カロリー（kcal・float）"
-        case .exerciseTime:                  return "運動時間（分・float）"
-        case .sleepDuration:                 return "睡眠時間（分・float）"
-        case .standTime:                     return "スタンド時間（float）"
-        case .daylightTime:                  return "日光浴時間（float）"
-        case .handwashingCount:              return "手洗い回数（int）"
-        case .fallCount:                     return "転倒検知回数（int）"
-        case .cyclingDistance:               return "自転車走行距離（float）"
-        case .swimmingDistance:              return "水泳距離（float）"
-        case .loudEnvironmentCount:          return "大音量環境曝露回数（int）"
-        case .headphoneLoudExposureCount:    return "ヘッドフォン大音量曝露回数（int）"
-        case .photoLibraryAddCount:          return "カメラロール追加枚数（int）"
-        case .screenshotCount:               return "スクリーンショット撮影回数（int）"
-        case .videoRecordingDuration:        return "動画撮影時間（float）"
-        case .significantLocationChangeCount: return "訪問場所の変化回数（int）"
-        case .cumulativeElevationGain:       return "累積獲得標高（float）"
-        case .automotiveDistance:            return "車での移動距離（float）"
-        case .automotiveTime:                return "車での移動時間（float）"
-        case .timeOutside:                   return "外出時間（float）"
-        case .callCount:                     return "通話回数（int）"
-        case .callDuration:                  return "通話時間（float）"
-        case .earphoneUsageTime:             return "イヤホン使用時間（float）"
-        case .bluetoothConnectionCount:      return "Bluetooth接続回数（int）"
-        case .wifiNetworkChangeCount:        return "Wi-Fiネットワーク切り替え回数（int）"
-        case .calendarEventCount:            return "カレンダー予定数（int）"
-        case .completedReminderCount:        return "完了リマインダー数（int）"
-        case .chargingTime:                  return "充電時間（float）"
-        case .orientationChangeCount:        return "画面の向き変化回数（int）"
+        case .stepCount:                     return "歩数"
+        case .walkingDistance:               return "歩行距離（m）"
+        case .runningDistance:               return "走行距離（m）"
+        case .flightsClimbed:                return "上った階数（階）"
+        case .activeEnergyBurned:            return "アクティブ消費カロリー（kcal）"
+        case .exerciseTime:                  return "運動時間（分）"
+        case .sleepDuration:                 return "睡眠時間（分）"
+        case .standTime:                     return "スタンド時間"
+        case .daylightTime:                  return "日光浴時間"
+        case .handwashingCount:              return "手洗い回数"
+        case .fallCount:                     return "転倒検知回数"
+        case .cyclingDistance:               return "自転車走行距離"
+        case .swimmingDistance:              return "水泳距離"
+        case .loudEnvironmentCount:          return "大音量環境曝露回数"
+        case .headphoneLoudExposureCount:    return "ヘッドフォン大音量曝露回数"
+        case .photoLibraryAddCount:          return "カメラロール追加枚数"
+        case .screenshotCount:               return "スクリーンショット撮影回数"
+        case .videoRecordingDuration:        return "動画撮影時間"
+        case .significantLocationChangeCount: return "訪問場所の変化回数"
+        case .cumulativeElevationGain:       return "累積獲得標高"
+        case .automotiveDistance:            return "車での移動距離"
+        case .automotiveTime:                return "車での移動時間"
+        case .timeOutside:                   return "外出時間"
+        case .callCount:                     return "通話回数"
+        case .callDuration:                  return "通話時間"
+        case .earphoneUsageTime:             return "イヤホン使用時間"
+        case .bluetoothConnectionCount:      return "Bluetooth接続回数"
+        case .wifiNetworkChangeCount:        return "Wi-Fiネットワーク切り替え回数"
+        case .calendarEventCount:            return "カレンダー予定数"
+        case .completedReminderCount:        return "完了リマインダー数"
+        case .chargingTime:                  return "充電時間"
+        case .orientationChangeCount:        return "画面の向き変化回数"
         }
     }
 
@@ -182,6 +182,25 @@ extension ActivityType {
         case .callCount, .callDuration, .earphoneUsageTime,
              .chargingTime, .orientationChangeCount:
             return .low
+        }
+    }
+}
+
+// MARK: - Value Type
+
+extension ActivityType {
+    var isIntegerValue: Bool {
+        switch self {
+        case .stepCount, .flightsClimbed, .handwashingCount, .fallCount,
+             .loudEnvironmentCount, .headphoneLoudExposureCount,
+             .photoLibraryAddCount, .screenshotCount,
+             .significantLocationChangeCount, .callCount,
+             .bluetoothConnectionCount, .wifiNetworkChangeCount,
+             .calendarEventCount, .completedReminderCount,
+             .orientationChangeCount:
+            return true
+        default:
+            return false
         }
     }
 }
