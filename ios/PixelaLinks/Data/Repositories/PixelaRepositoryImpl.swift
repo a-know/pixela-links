@@ -6,8 +6,7 @@ struct PixelaRepositoryImpl: PixelaRepository {
         guard account.isConfigured, let token = KeychainStore.loadToken() else {
             throw PixelaError.authenticationFailed
         }
-        let dateStr = DateFormatter.pixelaDate.string(from: .now)
-        let urlString = "https://pixe.la/v1/users/\(account.username)/graphs/\(graphID)/\(dateStr)/add"
+        let urlString = "https://pixe.la/v1/users/\(account.username)/graphs/\(graphID)/add"
         guard let url = URL(string: urlString) else {
             throw PixelaError.requestFailed(0)
         }

@@ -177,7 +177,7 @@ Bluetooth Central Background    → #27
 delta > 0 の場合のみ
   ↓
 URLSession で
-PUT https://pixe.la/v1/users/{username}/graphs/{graphID}/{date}/add
+PUT https://pixe.la/v1/users/{username}/graphs/{graphID}/add
   header: X-USER-TOKEN
   body: { "quantity": "<delta>" }
   ↓
@@ -188,7 +188,7 @@ PUT https://pixe.la/v1/users/{username}/graphs/{graphID}/{date}/add
 
 | 用途 | メソッド | エンドポイント |
 |---|---|---|
-| ピクセル加算（データ送信） | PUT | `/v1/users/{username}/graphs/{graphID}/{date}/add` |
+| ピクセル加算（データ送信） | PUT | `/v1/users/{username}/graphs/{graphID}/add` |
 | アカウント認証確認 | POST | `/v1/users/{username}/authentication` |
 | グラフ一覧取得 | GET | `/v1/users/{username}/graphs` |
 
