@@ -48,12 +48,13 @@ actor LocalStorageRepository {
             ActivitySyncRecordDTO(
                 activityType: $0.activityType,
                 lastSentDate: $0.lastSentDate,
-                lastSentValue: $0.lastSentValue
+                lastSentValue: $0.lastSentValue,
+                lastSentDelta: $0.lastSentDelta
             )
         }
     }
 
-    func updateRecord(type: ActivityType, value: Double) throws {
+    func updateRecord(type: ActivityType, value: Double, delta: Double) throws {
         let rawValue = type.rawValue
         let descriptor = FetchDescriptor<ActivitySyncRecord>(
             predicate: #Predicate { $0.activityType == rawValue }
@@ -62,11 +63,13 @@ actor LocalStorageRepository {
         if let existing = try modelContext.fetch(descriptor).first {
             existing.lastSentDate = now
             existing.lastSentValue = value
+            existing.lastSentDelta = delta
             existing.lastSyncedAt = now
         } else {
             let record = ActivitySyncRecord(activityType: type)
             record.lastSentDate = now
             record.lastSentValue = value
+            record.lastSentDelta = delta
             record.lastSyncedAt = now
             modelContext.insert(record)
         }

@@ -55,7 +55,7 @@ actor BackgroundSyncCoordinator {
             guard delta > 0 else { return }
 
             try await pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
-            try? await storage.updateRecord(type: type, value: total)
+            try? await storage.updateRecord(type: type, value: total, delta: delta)
         } catch let error as PixelaError {
             let syncError = ActivitySyncError(
                 activityType: type,

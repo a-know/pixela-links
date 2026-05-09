@@ -67,10 +67,17 @@ struct ActivityDetailView: View {
             if let record {
                 Section("送信状況") {
                     LabeledContent("最終送信") {
-                        Text(record.lastSyncedAt == .distantPast
-                             ? "未送信"
-                             : DateFormatter.lastSent.string(from: record.lastSyncedAt))
+                        if record.lastSyncedAt == .distantPast {
+                            Text("未送信")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(DateFormatter.lastSent.string(from: record.lastSyncedAt))
+                                Text("+\(formatValue(record.lastSentDelta)) \(activityType.unit)")
+                                    .font(.caption)
+                            }
                             .foregroundStyle(.secondary)
+                        }
                     }
                     LabeledContent("本日の送信値") {
                         Text(record.requiresReset
