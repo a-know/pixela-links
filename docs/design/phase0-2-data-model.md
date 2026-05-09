@@ -131,7 +131,7 @@ class ActivitySyncRecord {
     var activityType: String      // ActivityType.rawValue
     var lastSentDate: Date        // 最終送信日
     var lastSentValue: Double     // 最終送信時の累計値
-    var lastSyncedAt: Date        // 最終同期試行日時
+    var lastSyncedAt: Date        // 最終送信試行日時
 
     // 日付が変わっていたらリセットが必要
     var requiresReset: Bool {

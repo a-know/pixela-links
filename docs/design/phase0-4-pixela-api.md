@@ -40,7 +40,7 @@ X-USER-TOKEN: {token}
 
 ## エラーハンドリング方針
 
-リトライは行わない。エラー発生時は `ActivitySyncError` に記録してスキップし、次の同期タイミングで自然に再試行される。
+リトライは行わない。エラー発生時は `ActivitySyncError` に記録してスキップし、次の送信タイミングで自然に再試行される。
 
 ### ActivitySyncError モデル
 

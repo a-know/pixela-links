@@ -73,7 +73,7 @@ protocol ActivityDataSource {
 
 ---
 
-## バックグラウンド同期の中心設計
+## バックグラウンド送信の中心設計
 
 複数の起動経路（HealthKit / Location / BGAppRefresh 等）がすべてここに収束する。
 
@@ -92,7 +92,7 @@ class BackgroundSyncCoordinator {
                 try await pixelaRepo.addPixel(delta: delta, config: config)
                 recordStore.update(type: type, value: total)
             } catch {
-                // 失敗はスキップ（次の同期タイミングで再試行）
+                // 失敗はスキップ（次の送信タイミングで再試行）
             }
         }
     }

@@ -63,12 +63,12 @@ struct ActivityDetailView: View {
                 }
             }
 
-            // 同期状況
+            // 送信状況
             if let record {
-                Section("同期状況") {
-                    LabeledContent("最終同期") {
+                Section("送信状況") {
+                    LabeledContent("最終送信") {
                         Text(record.lastSyncedAt == .distantPast
-                             ? "未同期"
+                             ? "未送信"
                              : record.lastSyncedAt.formatted(date: .abbreviated, time: .shortened))
                             .foregroundStyle(.secondary)
                     }

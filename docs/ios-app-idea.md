@@ -117,7 +117,7 @@ HealthKit更新通知
 
 ```
 App/                  エントリーポイント・DI
-Data/                 データソース実装・リポジトリ実装・バックグラウンド同期
+Data/                 データソース実装・リポジトリ実装・バックグラウンド送信
   Sources/
     HealthKit/        HealthKit系データ取得
     Photos/           写真・メディア系

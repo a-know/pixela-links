@@ -47,7 +47,7 @@ actor BackgroundSyncCoordinator {
             try await pixelaRepo.addPixel(delta: delta, config: config)
             recordStore.update(type: type, value: total)
         } catch {
-            // 失敗はスキップ（次の同期タイミングで再試行）
+            // 失敗はスキップ（次の送信タイミングで再試行）
         }
     }
 }
