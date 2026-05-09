@@ -36,6 +36,8 @@
 	<string>バックグラウンドでも位置情報を継続して記録します</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します</string>
+	<key>NSMotionUsageDescription</key>
+	<string>車での移動時間・距離をPixelaに送信するために使用します</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>カメラロールの写真数・スクリーンショット数・動画時間をPixelaに送信するために使用します</string>
 	<key>NSRemindersUsageDescription</key>

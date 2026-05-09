@@ -33,6 +33,7 @@ targets:
         NSBluetoothAlwaysUsageDescription: "Bluetooth接続回数をPixelaに送信するために使用します"
         NSCalendarsUsageDescription: "カレンダーの予定数をPixelaに送信するために使用します"
         NSRemindersUsageDescription: "完了したリマインダー数をPixelaに送信するために使用します"
+        NSMotionUsageDescription: "車での移動時間・距離をPixelaに送信するために使用します"
         UIBackgroundModes:
           - fetch
           - healthkit

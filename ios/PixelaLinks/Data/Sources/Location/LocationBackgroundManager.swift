@@ -5,8 +5,10 @@ final class LocationBackgroundManager: NSObject {
     static let shared = LocationBackgroundManager()
 
     private let locationManager = CLLocationManager()
-    // Only written/read on main thread via CLLocationManager delegate
+    // Written/read on main thread via CLLocationManager delegate
     private(set) var locationChangeCount: Double = 0
+    private(set) var outsideMinutes: Double = 0
+    private var lastLocationDate: Date?
 
     func start() {
         locationManager.delegate = self
@@ -25,6 +27,17 @@ final class LocationBackgroundManager: NSObject {
 extension LocationBackgroundManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         locationChangeCount += 1
+
+        let now = Date.now
+        if let last = lastLocationDate {
+            let elapsed = now.timeIntervalSince(last)
+            // Accumulate only if updates are within 2 hours (continuous outdoor session)
+            if elapsed < 2 * 3600 {
+                outsideMinutes += elapsed / 60
+            }
+        }
+        lastLocationDate = now
+
         Task {
             await BackgroundSyncCoordinator.shared.sync(
                 types: [.significantLocationChangeCount, .timeOutside]
@@ -51,7 +64,7 @@ struct LocationDataSource: ActivityDataSource, @unchecked Sendable {
         case .significantLocationChangeCount:
             return await MainActor.run { manager.locationChangeCount }
         case .timeOutside:
-            return 0 // Phase 4: implement via geofencing / region monitoring
+            return await MainActor.run { manager.outsideMinutes }
         default:
             return 0
         }
