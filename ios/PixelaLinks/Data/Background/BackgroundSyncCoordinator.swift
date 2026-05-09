@@ -30,6 +30,12 @@ actor BackgroundSyncCoordinator {
         }
     }
 
+    func purgeOldErrors() async {
+        guard let storage else { return }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: .now)!
+        try? await storage.purgeErrors(before: cutoff)
+    }
+
     private func syncOne(_ type: ActivityType) async {
         guard let storage else { return }
         guard let configDTO = try? await storage.configDTO(for: type),

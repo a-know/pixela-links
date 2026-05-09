@@ -1,5 +1,7 @@
 import UIKit
 import SwiftData
+import Photos
+import EventKit
 
 @MainActor
 final class AppContainer {
@@ -24,6 +26,27 @@ final class AppContainer {
             MemoryOnlyActivityTracker.shared.flush()
             await BackgroundSyncCoordinator.shared.sync(types: ActivityType.memoryOnlyTypes)
             UIApplication.shared.endBackgroundTask(bgTask)
+        }
+    }
+
+    // MARK: - Authorization
+
+    static func requestAuthorization(for type: ActivityType) async {
+        switch type.category {
+        case .photoMedia:
+            guard PHPhotoLibrary.authorizationStatus(for: .readWrite) == .notDetermined else { return }
+            _ = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+
+        case .calendarTask:
+            let store = EKEventStore()
+            if type == .calendarEventCount {
+                try? await store.requestFullAccessToEvents()
+            } else {
+                try? await store.requestFullAccessToReminders()
+            }
+
+        default:
+            break // HealthKit, Location, Motion handle auth in their own managers
         }
     }
 

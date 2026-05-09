@@ -10,6 +10,7 @@ final class MotionActivityTracker {
 
     private var lastRelativeAltitude: Double?
     private(set) var cumulativeGainMeters: Double = 0
+    private var resetDateString = ""
 
     func start() {
         guard CMAltimeter.isRelativeAltitudeAvailable() else { return }
@@ -23,11 +24,20 @@ final class MotionActivityTracker {
     }
 
     private func handleAltitude(_ relative: Double) {
+        resetIfDayChanged()
         if let last = lastRelativeAltitude {
             let diff = relative - last
             if diff > 0 { cumulativeGainMeters += diff }
         }
         lastRelativeAltitude = relative
+    }
+
+    private func resetIfDayChanged() {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        guard resetDateString != today else { return }
+        resetDateString = today
+        cumulativeGainMeters = 0
+        lastRelativeAltitude = nil
     }
 
     func queryAutomotiveMinutes() async throws -> Double {
@@ -87,9 +97,8 @@ struct MotionDataSource: ActivityDataSource, @unchecked Sendable {
         case .automotiveTime:
             return try await tracker.queryAutomotiveMinutes()
         case .automotiveDistance:
-            // Phase 5: GPS + motion fusion for true distance
             let minutes = try await tracker.queryAutomotiveMinutes()
-            return minutes / 60 * 30 // rough estimate: 30 km/h average city speed
+            return minutes / 60 * 30 // 30 km/h 平均速度による概算
         default:
             return 0
         }

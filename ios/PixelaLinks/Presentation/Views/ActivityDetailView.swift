@@ -31,8 +31,11 @@ struct ActivityDetailView: View {
             // 送信設定
             Section {
                 Toggle("Pixelaに送信", isOn: $viewModel.isEnabled)
-                    .onChange(of: viewModel.isEnabled) { _, _ in
+                    .onChange(of: viewModel.isEnabled) { _, newValue in
                         viewModel.save(to: modelContext)
+                        if newValue {
+                            Task { await AppContainer.requestAuthorization(for: activityType) }
+                        }
                     }
                 if viewModel.isEnabled {
                     LabeledContent("グラフID") {

@@ -17,6 +17,7 @@ final class MemoryOnlyActivityTracker: NSObject {
     private var earphoneConnectedSince: Date?
     private var chargingStartDate: Date?
 
+    private var resetDateString = ""
     private let callObserver = CXCallObserver()
 
     func start() {
@@ -41,6 +42,7 @@ final class MemoryOnlyActivityTracker: NSObject {
     }
 
     func flush() {
+        resetIfDayChanged()
         let now = Date.now
         if let start = earphoneConnectedSince {
             earphoneMinutes += now.timeIntervalSince(start) / 60
@@ -66,7 +68,21 @@ final class MemoryOnlyActivityTracker: NSObject {
         ]
     }
 
-    // MARK: - Private helpers
+    // MARK: - Private
+
+    private func resetIfDayChanged() {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        guard resetDateString != today else { return }
+        resetDateString = today
+        callCount = 0
+        callDurationMinutes = 0
+        earphoneMinutes = 0
+        chargingMinutes = 0
+        orientationChanges = 0
+        callStartDate = nil
+        earphoneConnectedSince = nil
+        chargingStartDate = nil
+    }
 
     private func checkInitialAudioRoute() {
         if isEarphoneRoute(AVAudioSession.sharedInstance().currentRoute) {
@@ -149,12 +165,12 @@ struct MemoryOnlyDataSource: ActivityDataSource {
         await MainActor.run {
             tracker.flush()
             switch type {
-            case .callCount:            return tracker.callCount
-            case .callDuration:         return tracker.callDurationMinutes
-            case .earphoneUsageTime:    return tracker.earphoneMinutes
-            case .chargingTime:         return tracker.chargingMinutes
+            case .callCount:              return tracker.callCount
+            case .callDuration:           return tracker.callDurationMinutes
+            case .earphoneUsageTime:      return tracker.earphoneMinutes
+            case .chargingTime:           return tracker.chargingMinutes
             case .orientationChangeCount: return tracker.orientationChanges
-            default:                    return 0
+            default:                      return 0
             }
         }
     }

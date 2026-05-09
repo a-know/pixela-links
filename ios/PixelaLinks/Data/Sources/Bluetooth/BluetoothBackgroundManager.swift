@@ -6,12 +6,12 @@ final class BluetoothBackgroundManager: NSObject {
 
     private static let restoreKey = "com.pixela.links.bluetooth"
     private var centralManager: CBCentralManager?
-    // Written/read on CBCentralManager queue (serial)
+    // Written/read on main thread (queue: nil → main queue)
     private(set) var connectionCount: Double = 0
+    private var resetDateString = ""
 
     override init() {
         super.init()
-        // Initialize early for state restoration
         centralManager = CBCentralManager(
             delegate: self,
             queue: nil,
@@ -19,13 +19,17 @@ final class BluetoothBackgroundManager: NSObject {
         )
     }
 
-    func start() {
-        // Manager is already initialized in init() for state restoration.
-        // Actual peripheral scanning is Phase 4.
-    }
+    func start() {}
 
     func makeDataSource() -> any ActivityDataSource {
         BluetoothDataSource(manager: self)
+    }
+
+    private func resetIfDayChanged() {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        guard resetDateString != today else { return }
+        resetDateString = today
+        connectionCount = 0
     }
 }
 
@@ -33,6 +37,7 @@ extension BluetoothBackgroundManager: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {}
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        resetIfDayChanged()
         connectionCount += 1
         Task {
             await BackgroundSyncCoordinator.shared.sync(types: [.bluetoothConnectionCount])
@@ -43,7 +48,6 @@ extension BluetoothBackgroundManager: CBCentralManagerDelegate {
         _ central: CBCentralManager,
         willRestoreState dict: [String: Any]
     ) {
-        // Peripherals that were connected before app was killed are restored here
         let restored = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] ?? []
         if !restored.isEmpty {
             Task {

@@ -8,11 +8,13 @@ final class WiFiChangeTracker {
     private var wasConnected = false
     // Written/read on main thread only
     private(set) var changeCount: Double = 0
+    private var resetDateString = ""
 
     func start() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
                 guard let self else { return }
+                self.resetIfDayChanged()
                 let connected = path.status == .satisfied
                 if connected && !self.wasConnected {
                     self.changeCount += 1
@@ -25,6 +27,14 @@ final class WiFiChangeTracker {
 
     var dataSource: any ActivityDataSource {
         WiFiDataSource(tracker: self)
+    }
+
+    private func resetIfDayChanged() {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        guard resetDateString != today else { return }
+        resetDateString = today
+        changeCount = 0
+        wasConnected = false
     }
 }
 

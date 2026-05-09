@@ -25,9 +25,8 @@ final class BackgroundTaskManager: Sendable {
         scheduleNextRefresh()
 
         let syncTask = Task {
-            await BackgroundSyncCoordinator.shared.sync(
-                types: ActivityType.bgRefreshTypes
-            )
+            await BackgroundSyncCoordinator.shared.sync(types: ActivityType.bgRefreshTypes)
+            await BackgroundSyncCoordinator.shared.purgeOldErrors()
             task.setTaskCompleted(success: true)
         }
 
