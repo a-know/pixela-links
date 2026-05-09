@@ -14,9 +14,14 @@ final class AccountSetupViewModel {
     var canValidate: Bool { !username.isEmpty && !token.isEmpty && !isValidating }
     var savedConfig: PixelaAccountConfig? = nil
 
+    @ObservationIgnored private var prefilledUsername = ""
+    @ObservationIgnored private var prefilledToken = ""
+
     func prefill(with account: PixelaAccountConfig) {
-        username = account.username
-        token = KeychainStore.loadToken() ?? ""
+        prefilledUsername = account.username
+        prefilledToken = KeychainStore.loadToken() ?? ""
+        username = prefilledUsername
+        token = prefilledToken
         if account.isVerified {
             isValidated = true
             validationIsSuccess = true
@@ -25,6 +30,8 @@ final class AccountSetupViewModel {
     }
 
     func resetValidation() {
+        // prefill() による変更では username/token が prefill 値と一致するためスキップ
+        guard username != prefilledUsername || token != prefilledToken else { return }
         isValidated = false
         validationIsSuccess = false
         validationMessage = nil
