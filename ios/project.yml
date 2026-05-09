@@ -52,5 +52,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.pixela.links
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: ""
+        DEVELOPMENT_TEAM: U2LZVLHC3C
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
