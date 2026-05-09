@@ -24,7 +24,7 @@ struct AccountSetupView: View {
                         Task { await viewModel.validate() }
                     } label: {
                         HStack {
-                            Text("接続を確認する")
+                            Text("接続する")
                             if viewModel.isValidating {
                                 Spacer()
                                 ProgressView()
