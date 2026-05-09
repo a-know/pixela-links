@@ -20,6 +20,13 @@ struct AccountSetupView: View {
                 }
 
                 Section {
+                    if let message = viewModel.validationMessage {
+                        Label(message, systemImage: viewModel.validationIsSuccess
+                              ? "checkmark.circle" : "xmark.circle")
+                            .foregroundStyle(viewModel.validationIsSuccess ? Color.green : Color.red)
+                            .font(.footnote)
+                    }
+
                     if viewModel.validationIsSuccess {
                         Button(role: .destructive) {
                             viewModel.disconnect()
@@ -39,13 +46,6 @@ struct AccountSetupView: View {
                             }
                         }
                         .disabled(!viewModel.canValidate)
-                    }
-
-                    if let message = viewModel.validationMessage {
-                        Label(message, systemImage: viewModel.validationIsSuccess
-                              ? "checkmark.circle" : "xmark.circle")
-                            .foregroundStyle(viewModel.validationIsSuccess ? Color.green : Color.red)
-                            .font(.footnote)
                     }
                 }
 
