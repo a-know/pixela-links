@@ -12,7 +12,7 @@ final class AccountSetupViewModel {
     var validationIsSuccess = false
 
     var canValidate: Bool { !username.isEmpty && !token.isEmpty && !isValidating }
-    var canSave: Bool { isValidated }
+    var savedConfig: PixelaAccountConfig? = nil
 
     func prefill(with account: PixelaAccountConfig) {
         username = account.username
@@ -39,6 +39,7 @@ final class AccountSetupViewModel {
             isValidated = true
             validationIsSuccess = true
             validationMessage = "✓ 接続できました"
+            savedConfig = save()
         } catch {
             validationIsSuccess = false
             validationMessage = "認証情報が正しくありません"

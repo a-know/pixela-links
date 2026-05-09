@@ -41,18 +41,13 @@ struct AccountSetupView: View {
                     }
                 }
 
-                if viewModel.canSave {
-                    Section {
-                        Button("保存する") {
-                            onSave(viewModel.save())
-                        }
-                        .bold()
-                    }
-                }
             }
             .navigationTitle("Pixelaアカウント設定")
             .onAppear {
                 if let existing { viewModel.prefill(with: existing) }
+            }
+            .onChange(of: viewModel.savedConfig) { _, config in
+                if let config { onSave(config) }
             }
         }
     }
