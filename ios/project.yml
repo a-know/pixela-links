@@ -23,7 +23,7 @@ targets:
     info:
       path: PixelaLinks/App/Info.plist
       properties:
-        CFBundleDisplayName: PixelaLinks
+        CFBundleDisplayName: Pixela Links
         UILaunchScreen: {}
         NSHealthShareUsageDescription: "HealthKitの健康データをPixelaに送信するために使用します"
         NSLocationAlwaysAndWhenInUseUsageDescription: "位置情報を使用して訪問場所の変化・外出時間・移動距離を記録します"

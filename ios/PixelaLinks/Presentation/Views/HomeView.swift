@@ -42,7 +42,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle("PixelaLinks")
+            .navigationTitle("Pixela Links")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: onAccountTap) {
