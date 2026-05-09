@@ -1,10 +1,10 @@
-# iOSアプリアイデア：wwwebhooks（仮称）
+# Pixela Links
 
 ## コンセプト
 
 > 「iPhone をいつも通り利用するだけで、さまざまなアクティビティ情報を Pixela に自動連携する」
 
-ユーザーが意識することなく、iPhone の各種センサー・フレームワークからデータを収集し、Pixela の [Add Specific Pixel API](https://docs.pixe.la/entry/add-specific-pixel) へ自動送信するiOSアプリ。
+ユーザーが意識することなく、iPhone の各種センサー・フレームワークからデータを収集し、Pixela の Add Pixel API へ自動送信するiOSアプリ。
 
 ---
 
@@ -40,76 +40,99 @@ HealthKit更新通知
 
 ## 対象データ（全32種）
 
-### HealthKit系（15種）
+バックグラウンド信頼性：**高**=OS が起動してくれる / **中**=Background App Refresh 依存 / **低**=アプリがメモリ上にある間のみ取得可能
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 1 | 歩数 | |
-| 2 | 歩行距離 | |
-| 3 | 走行距離 | |
-| 4 | 上った階数 | |
-| 5 | アクティブ消費カロリー | |
-| 6 | 運動時間 | |
-| 7 | 睡眠時間 | 翌朝に送信する設計が自然 |
-| 8 | スタンド時間 | Apple Watch必要 |
-| 9 | 日光浴時間 | iOS 17+ / iPhone 15以降 or Apple Watch S9/Ultra 2 |
-| 10 | 手洗い回数 | Apple Watch必要 |
-| 11 | 転倒検知回数 | Apple Watch必要 |
-| 12 | 自転車走行距離 | Apple Watch必要 |
-| 13 | 水泳距離 | Apple Watch必要（防水モデル） |
-| 14 | 大音量環境曝露回数 | 80dB以上の騒音に3分以上さらされた回数。HealthKit自動検知 |
-| 15 | ヘッドフォン大音量曝露回数 | イヤホン経由の危険音量曝露回数。HealthKit自動検知 |
+### HealthKit系（15種） — 信頼性：高
 
-### 写真・メディア系（3種）
+| # | データ種別 | 単位 | 備考 |
+|---|-----------|------|------|
+| 1 | 歩数 | 回 | |
+| 2 | 歩行距離 | km | |
+| 3 | 走行距離 | km | |
+| 4 | 上った階数 | 回 | |
+| 5 | アクティブ消費カロリー | kcal | |
+| 6 | 運動時間 | 分 | |
+| 7 | 睡眠時間 | 分 | 翌朝に送信する設計が自然 |
+| 8 | スタンド時間 | 分 | Apple Watch必要 |
+| 9 | 日光浴時間 | 分 | iPhone 15以降 または Apple Watch S9/Ultra 2 必要 |
+| 10 | 手洗い回数 | 回 | Apple Watch必要 |
+| 11 | 転倒検知回数 | 回 | Apple Watch必要 |
+| 12 | 自転車走行距離 | km | Apple Watch必要 |
+| 13 | 水泳距離 | km | Apple Watch必要（防水モデル） |
+| 14 | 大音量環境曝露回数 | 回 | 80dB以上の騒音に3分以上さらされた回数 |
+| 15 | ヘッドフォン大音量曝露回数 | 回 | イヤホン経由の危険音量曝露回数 |
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 16 | カメラロール追加枚数 | フルアクセス許可が必要 |
-| 17 | スクリーンショット撮影回数 | `PHAssetMediaSubtype.photoScreenshot` でフィルタ |
-| 18 | 動画撮影時間（秒） | 本日追加された動画アセットのduration合算 |
+### 写真・メディア系（3種） — 信頼性：中
+
+| # | データ種別 | 単位 | 備考 |
+|---|-----------|------|------|
+| 16 | カメラロール追加枚数 | 回 | フルアクセス許可が必要 |
+| 17 | スクリーンショット撮影回数 | 回 | `PHAssetMediaSubtype.photoScreenshot` でフィルタ |
+| 18 | 動画撮影時間 | 秒 | 本日追加された動画アセットのduration合算 |
 
 ### 位置・移動系（5種）
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 19 | 訪問場所の変化回数 | Significant Location Change |
-| 20 | 累積獲得標高 | CMAltimeter。誤差あり、屋内エレベーターも拾う |
-| 21 | 車での移動距離 | CoreMotion（`.automotive`）+ CoreLocation |
-| 22 | 車での移動時間 | CoreMotion activity分類 |
-| 23 | 外出時間（分） | ジオフェンシング（自宅登録が必要）。バックグラウンド動作可 |
+| # | データ種別 | 単位 | 信頼性 | 備考 |
+|---|-----------|------|--------|------|
+| 19 | 訪問場所の変化回数 | 回 | 高 | Significant Location Change |
+| 20 | 累積獲得標高 | m | 中 | CMAltimeter。屋内エレベーターも拾う |
+| 21 | 車での移動距離 | km | 中 | CoreMotion（`.automotive`）+ CoreLocation |
+| 22 | 車での移動時間 | 分 | 中 | CoreMotion activity分類 |
+| 23 | 外出時間 | 分 | 高 | ジオフェンシング（自宅登録が必要） |
 
-### 通話・音声系（3種）
+### 通話・音声系（3種） — 信頼性：低
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 24 | 通話回数 | CallKit `CXCallObserver`。アプリがメモリ上にいる必要あり |
-| 25 | 通話時間（分） | 同上 |
-| 26 | イヤホン使用時間 | `AVAudioSession.routeChangeNotification`。同上 |
+| # | データ種別 | 単位 | 備考 |
+|---|-----------|------|------|
+| 24 | 通話回数 | 回 | CallKit `CXCallObserver` |
+| 25 | 通話時間 | 分 | 同上 |
+| 26 | イヤホン使用時間 | 分 | `AVAudioSession.routeChangeNotification` |
 
 ### 接続系（2種）
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 27 | Bluetooth接続回数 | `bluetooth-central` background mode |
-| 28 | Wi-Fiネットワーク切り替え回数 | NWPathMonitor |
+| # | データ種別 | 単位 | 信頼性 | 備考 |
+|---|-----------|------|--------|------|
+| 27 | Bluetooth接続回数 | 回 | 高 | `bluetooth-central` background mode |
+| 28 | Wi-Fiネットワーク切り替え回数 | 回 | 中 | NWPathMonitor |
 
-### 予定・タスク系（2種）
+### 予定・タスク系（2種） — 信頼性：中
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 29 | カレンダー予定数 | EventKit。今日開始のイベント数を累積カウント |
-| 30 | 完了リマインダー数 | EventKit |
+| # | データ種別 | 単位 | 備考 |
+|---|-----------|------|------|
+| 29 | カレンダー予定数 | 回 | EventKit。今日開始のイベント数を累積カウント |
+| 30 | 完了リマインダー数 | 回 | EventKit |
 
-### デバイス状態系（2種）
+### デバイス状態系（2種） — 信頼性：低
 
-| # | データ種別 | 備考 |
-|---|-----------|------|
-| 31 | 充電時間（分） | `UIDevice.batteryState` 変化を累積。アプリがメモリ上にいる必要あり |
-| 32 | 画面の向き変化回数 | `UIDevice.orientationDidChangeNotification`。同上 |
+| # | データ種別 | 単位 | 備考 |
+|---|-----------|------|------|
+| 31 | 充電時間 | 分 | `UIDevice.batteryState` 変化を累積 |
+| 32 | 画面の向き変化回数 | 回 | `UIDevice.orientationDidChangeNotification` |
 
 ---
 
 ## アーキテクチャ
+
+### レイヤー構成
+
+```
+App/                  エントリーポイント・DI
+Data/                 データソース実装・リポジトリ実装・バックグラウンド同期
+  Sources/
+    HealthKit/        HealthKit系データ取得
+    Photos/           写真・メディア系
+    Location/         位置・移動系
+    Motion/           車移動系（CoreMotion）
+    Bluetooth/        Bluetooth接続系
+    Connectivity/     Wi-Fi切り替え系
+    Calendar/         カレンダー・リマインダー系
+    MemoryOnly/       通話・充電・画面向き系
+  Background/         BackgroundSyncCoordinator
+  Repositories/       PixelaRepositoryImpl・LocalStorageRepository
+Domain/               モデル・プロトコル定義
+Infrastructure/       ネットワーク・永続化基盤（NetworkClient・SwiftData・Keychain）
+Presentation/         SwiftUI Views・ViewModels
+```
 
 ### バックグラウンド動作の仕組み
 
@@ -153,17 +176,27 @@ Bluetooth Central Background    → #27
   ↓
 delta > 0 の場合のみ
   ↓
-Background URLSession で
-POST https://pixe.la/v1/users/{user}/graphs/{graph}/{date}
-  body: { "quantity": "<delta>", "optionalData": "" }
+URLSession で
+PUT https://pixe.la/v1/users/{username}/graphs/{graphID}/{date}/add
+  header: X-USER-TOKEN
+  body: { "quantity": "<delta>" }
   ↓
-ローカル状態を更新（UserDefaults or SwiftData）
+ローカル状態を更新（SwiftData）
 ```
+
+### 使用するAPI
+
+| 用途 | メソッド | エンドポイント |
+|---|---|---|
+| ピクセル加算（データ送信） | PUT | `/v1/users/{username}/graphs/{graphID}/{date}/add` |
+| アカウント認証確認 | POST | `/v1/users/{username}/authentication` |
+| グラフ一覧取得 | GET | `/v1/users/{username}/graphs` |
 
 ### ローカル永続化
 
-- **UserDefaults or SwiftData**：各データ種別の最終送信日・最終送信値
-- **Background URLSession**：アプリが終了していてもOSがリクエストを代理送信
+- **SwiftData**：各データ種別の最終送信日・最終送信値・エラーログ
+- **Keychain**：APIトークンの安全な保存
+- **URLSession**（フォアグラウンド）：現時点の送信セッション
 
 ---
 
