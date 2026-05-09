@@ -5,8 +5,9 @@ import BackgroundTasks
 @main
 struct PixelaLinksApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
 
-    var sharedModelContainer: ModelContainer = {
+    let sharedModelContainer: ModelContainer = {
         let schema = Schema([
             ActivitySyncConfig.self,
             ActivitySyncRecord.self,
@@ -22,8 +23,16 @@ struct PixelaLinksApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task {
+                    AppContainer.shared.configure(modelContainer: sharedModelContainer)
+                }
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                AppContainer.shared.flushAndSync()
+            }
+        }
     }
 }
 
@@ -33,6 +42,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         BackgroundTaskManager.shared.registerTasks()
+        // Initialize Bluetooth manager early for Core Bluetooth state restoration
+        _ = BluetoothBackgroundManager.shared
         return true
     }
 
