@@ -53,4 +53,15 @@ final class AccountSetupViewModel {
         try? KeychainStore.saveToken(token)
         return config
     }
+
+    func disconnect() {
+        isValidated = false
+        validationIsSuccess = false
+        validationMessage = nil
+        token = ""
+        let config = PixelaAccountConfig(username: username, isVerified: false)
+        config.save()
+        try? KeychainStore.deleteToken()
+        savedConfig = config
+    }
 }

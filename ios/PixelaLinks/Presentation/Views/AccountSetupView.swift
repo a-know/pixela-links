@@ -20,18 +20,26 @@ struct AccountSetupView: View {
                 }
 
                 Section {
-                    Button {
-                        Task { await viewModel.validate() }
-                    } label: {
-                        HStack {
-                            Text("接続する")
-                            if viewModel.isValidating {
-                                Spacer()
-                                ProgressView()
+                    if viewModel.validationIsSuccess {
+                        Button(role: .destructive) {
+                            viewModel.disconnect()
+                        } label: {
+                            Text("接続を解除する")
+                        }
+                    } else {
+                        Button {
+                            Task { await viewModel.validate() }
+                        } label: {
+                            HStack {
+                                Text("接続する")
+                                if viewModel.isValidating {
+                                    Spacer()
+                                    ProgressView()
+                                }
                             }
                         }
+                        .disabled(!viewModel.canValidate)
                     }
-                    .disabled(!viewModel.canValidate)
 
                     if let message = viewModel.validationMessage {
                         Label(message, systemImage: viewModel.validationIsSuccess
