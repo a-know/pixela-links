@@ -76,6 +76,23 @@ actor LocalStorageRepository {
         try modelContext.save()
     }
 
+    // MARK: - Send History
+
+    func recordSendHistory(type: ActivityType, delta: Double, value: Double) throws {
+        let history = ActivitySendHistory(activityType: type, delta: delta, value: value)
+        modelContext.insert(history)
+        let rawValue = type.rawValue
+        let descriptor = FetchDescriptor<ActivitySendHistory>(
+            predicate: #Predicate { $0.activityType == rawValue },
+            sortBy: [SortDescriptor(\.sentAt, order: .reverse)]
+        )
+        let all = try modelContext.fetch(descriptor)
+        if all.count > 100 {
+            all.dropFirst(100).forEach { modelContext.delete($0) }
+        }
+        try modelContext.save()
+    }
+
     // MARK: - Errors
 
     func recordError(_ error: ActivitySyncError) throws {

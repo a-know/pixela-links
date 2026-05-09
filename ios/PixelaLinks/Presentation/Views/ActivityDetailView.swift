@@ -8,6 +8,7 @@ struct ActivityDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var records: [ActivitySyncRecord]
     @Query private var allErrors: [ActivitySyncError]
+    @Query private var allHistory: [ActivitySendHistory]
 
     init(activityType: ActivityType) {
         self.activityType = activityType
@@ -16,6 +17,12 @@ struct ActivityDetailView: View {
 
     private var record: ActivitySyncRecord? {
         records.first { $0.activityType == activityType.rawValue }
+    }
+
+    private var sendHistory: [ActivitySendHistory] {
+        allHistory
+            .filter { $0.activityType == activityType.rawValue }
+            .sorted { $0.sentAt > $1.sentAt }
     }
 
     private var recentErrors: [ActivitySyncError] {
@@ -66,24 +73,20 @@ struct ActivityDetailView: View {
             // 送信状況
             if let record {
                 Section("送信状況") {
-                    LabeledContent("最終送信") {
-                        if record.lastSyncedAt == .distantPast {
-                            Text("未送信")
-                                .foregroundStyle(.secondary)
-                        } else {
-                            VStack(alignment: .trailing, spacing: 2) {
-                                Text(DateFormatter.lastSent.string(from: record.lastSyncedAt))
-                                Text("+\(formatValue(record.lastSentDelta)) \(activityType.unit)")
-                                    .font(.caption)
-                            }
-                            .foregroundStyle(.secondary)
-                        }
-                    }
                     LabeledContent("本日の送信値") {
                         Text(record.requiresReset
                              ? "—"
                              : "\(formatValue(record.lastSentValue)) \(activityType.unit)")
                             .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            // 送信履歴
+            if !sendHistory.isEmpty {
+                Section("送信履歴") {
+                    ForEach(sendHistory, id: \.sentAt) { entry in
+                        SendHistoryRowView(entry: entry, unit: activityType.unit)
                     }
                 }
             }
@@ -146,6 +149,29 @@ struct ActivityDetailView: View {
     }
 
     // MARK: - Helpers
+
+    private func formatValue(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(value))
+            : String(format: "%.2f", value)
+    }
+}
+
+struct SendHistoryRowView: View {
+    let entry: ActivitySendHistory
+    let unit: String
+
+    var body: some View {
+        HStack {
+            Text(DateFormatter.lastSent.string(from: entry.sentAt))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text("+\(formatValue(entry.sentDelta)) \(unit)")
+                .font(.caption.monospaced())
+                .foregroundStyle(.primary)
+        }
+    }
 
     private func formatValue(_ value: Double) -> String {
         value.truncatingRemainder(dividingBy: 1) == 0

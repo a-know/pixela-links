@@ -12,6 +12,7 @@ struct PixelaLinksApp: App {
             ActivitySyncConfig.self,
             ActivitySyncRecord.self,
             ActivitySyncError.self,
+            ActivitySendHistory.self,
         ])
         do {
             return try ModelContainer(for: schema)
