@@ -50,8 +50,8 @@ extension ActivityType {
     var displayName: String {
         switch self {
         case .stepCount:                     return "歩数"
-        case .walkingDistance:               return "歩行距離"
-        case .runningDistance:               return "走行距離"
+        case .walkingDistance:               return "歩行距離（m）"
+        case .runningDistance:               return "走行距離（m）"
         case .flightsClimbed:                return "上った階数"
         case .activeEnergyBurned:            return "アクティブ消費カロリー"
         case .exerciseTime:                  return "運動時間"
@@ -94,8 +94,9 @@ extension ActivityType {
              .calendarEventCount, .completedReminderCount,
              .orientationChangeCount:
             return "回"
-        case .walkingDistance, .runningDistance, .cyclingDistance,
-             .swimmingDistance, .automotiveDistance:
+        case .walkingDistance, .runningDistance:
+            return "m"
+        case .cyclingDistance, .swimmingDistance, .automotiveDistance:
             return "km"
         case .activeEnergyBurned:
             return "kcal"
