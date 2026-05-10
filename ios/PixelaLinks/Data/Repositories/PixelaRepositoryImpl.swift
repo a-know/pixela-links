@@ -8,7 +8,7 @@ struct PixelaRepositoryImpl: PixelaRepository {
         }
         let urlString = "https://pixe.la/v1/users/\(account.username)/graphs/\(graphID)/add"
         guard let url = URL(string: urlString) else {
-            throw PixelaError.requestFailed(0)
+            throw PixelaError.requestFailed(0, nil)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
@@ -16,16 +16,18 @@ struct PixelaRepositoryImpl: PixelaRepository {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(PixelPayload(quantity: formatQuantity(delta)))
 
-        let (_, response) = try await NetworkClient.foregroundSession.data(for: request)
+        let (data, response) = try await NetworkClient.foregroundSession.data(for: request)
         guard let http = response as? HTTPURLResponse,
               (200..<300).contains(http.statusCode) else {
-            throw PixelaError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? 0)
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let message = (try? JSONDecoder().decode(PixelaResponse.self, from: data))?.message
+            throw PixelaError.requestFailed(code, message)
         }
     }
 
     func validateAccount(username: String, token: String) async throws {
         guard let url = URL(string: "https://pixe.la/v1/users/\(username)/authentication") else {
-            throw PixelaError.requestFailed(0)
+            throw PixelaError.requestFailed(0, nil)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -44,7 +46,7 @@ struct PixelaRepositoryImpl: PixelaRepository {
             throw PixelaError.authenticationFailed
         }
         guard let url = URL(string: "https://pixe.la/v1/users/\(account.username)/graphs") else {
-            throw PixelaError.requestFailed(0)
+            throw PixelaError.requestFailed(0, nil)
         }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -53,7 +55,9 @@ struct PixelaRepositoryImpl: PixelaRepository {
         let (data, response) = try await NetworkClient.foregroundSession.data(for: request)
         guard let http = response as? HTTPURLResponse,
               (200..<300).contains(http.statusCode) else {
-            throw PixelaError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? 0)
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let message = (try? JSONDecoder().decode(PixelaResponse.self, from: data))?.message
+            throw PixelaError.requestFailed(code, message)
         }
         return try JSONDecoder().decode(GraphListResponse.self, from: data).graphs
     }
@@ -67,6 +71,10 @@ struct PixelaRepositoryImpl: PixelaRepository {
 
 private struct PixelPayload: Encodable {
     let quantity: String
+}
+
+private struct PixelaResponse: Decodable {
+    let message: String?
 }
 
 private struct GraphListResponse: Decodable {

@@ -6,13 +6,21 @@ protocol PixelaRepository: Sendable {
     func fetchGraphs() async throws -> [PixelaGraph]
 }
 
-enum PixelaError: Error {
-    case requestFailed(Int)
+enum PixelaError: Error, LocalizedError {
+    case requestFailed(Int, String?)   // status code, server message
     case authenticationFailed
     case networkError(Error)
 
     var statusCode: Int? {
-        if case .requestFailed(let code) = self { return code }
+        if case .requestFailed(let code, _) = self { return code }
         return nil
+    }
+
+    var errorDescription: String? {
+        switch self {
+        case .requestFailed(_, let message): return message ?? "Pixela APIエラー"
+        case .authenticationFailed:          return "認証エラー"
+        case .networkError(let e):           return e.localizedDescription
+        }
     }
 }
