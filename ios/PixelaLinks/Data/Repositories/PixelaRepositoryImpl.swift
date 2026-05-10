@@ -63,9 +63,11 @@ struct PixelaRepositoryImpl: PixelaRepository {
     }
 
     private func formatQuantity(_ value: Double) -> String {
-        value.truncatingRemainder(dividingBy: 1) == 0
-            ? String(Int(value))
-            : String(format: "%.2f", value)
+        let rounded = value.rounded()
+        if abs(value - rounded) < 1e-9 {
+            return String(Int(rounded))
+        }
+        return String(format: "%.2f", value)
     }
 }
 
