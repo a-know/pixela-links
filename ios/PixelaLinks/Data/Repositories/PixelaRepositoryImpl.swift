@@ -14,13 +14,15 @@ struct PixelaRepositoryImpl: PixelaRepository {
         request.httpMethod = "PUT"
         request.setValue(token, forHTTPHeaderField: "X-USER-TOKEN")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(PixelPayload(quantity: formatQuantity(delta)))
+        let quantity = formatQuantity(delta)
+        request.httpBody = try JSONEncoder().encode(PixelPayload(quantity: quantity))
 
         let (data, response) = try await NetworkClient.foregroundSession.data(for: request)
         guard let http = response as? HTTPURLResponse,
               (200..<300).contains(http.statusCode) else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            let message = (try? JSONDecoder().decode(PixelaResponse.self, from: data))?.message
+            let rawMessage = (try? JSONDecoder().decode(PixelaResponse.self, from: data))?.message
+            let message = rawMessage.map { $0 == "Quantity is invalid." ? "Quantity (\(quantity)) is invalid." : $0 }
             throw PixelaError.requestFailed(code, message)
         }
     }

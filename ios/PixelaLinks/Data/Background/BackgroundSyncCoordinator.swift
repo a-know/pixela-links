@@ -44,14 +44,16 @@ actor BackgroundSyncCoordinator {
         guard let source = dataSources[type] else { return }
 
         do {
-            let total = try await source.fetchTodayTotal()
+            let rawTotal = try await source.fetchTodayTotal()
+            let total = type.isIntegerValue ? rawTotal.rounded() : rawTotal
             let recordDTO = try? await storage.recordDTO(for: type)
-            let delta: Double
+            let rawDelta: Double
             if let recordDTO, !recordDTO.requiresReset {
-                delta = total - recordDTO.lastSentValue
+                rawDelta = total - recordDTO.lastSentValue
             } else {
-                delta = total
+                rawDelta = total
             }
+            let delta = type.isIntegerValue ? rawDelta.rounded() : rawDelta
             guard delta > 0, delta.rounded() > 0 else { return }
 
             try await withTimeoutRetry(maxRetries: 5) {
