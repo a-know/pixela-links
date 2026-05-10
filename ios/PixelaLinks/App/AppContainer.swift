@@ -13,6 +13,7 @@ final class AppContainer {
         isConfigured = true
 
         Task {
+            migrateKeychainAccessibilityIfNeeded()
             await BackgroundSyncCoordinator.shared.configure(modelContainer: modelContainer)
             await registerAllDataSources()
             startBackgroundManagers()
@@ -51,6 +52,12 @@ final class AppContainer {
     }
 
     // MARK: - Private
+
+    private func migrateKeychainAccessibilityIfNeeded() {
+        if let token = KeychainStore.loadToken() {
+            try? KeychainStore.saveToken(token)
+        }
+    }
 
     private func registerAllDataSources() async {
         // HealthKit (15 types)

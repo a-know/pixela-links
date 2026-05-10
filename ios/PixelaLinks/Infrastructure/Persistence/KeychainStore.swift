@@ -7,14 +7,19 @@ enum KeychainStore {
 
     static func saveToken(_ token: String) throws {
         let data = Data(token.utf8)
-        let query: [String: Any] = [
+        let deleteQuery: [String: Any] = [
             kSecClass as String:       kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: tokenKey,
         ]
-        SecItemDelete(query as CFDictionary)
-        var addQuery = query
-        addQuery[kSecValueData as String] = data
+        SecItemDelete(deleteQuery as CFDictionary)
+        let addQuery: [String: Any] = [
+            kSecClass as String:            kSecClassGenericPassword,
+            kSecAttrService as String:      service,
+            kSecAttrAccount as String:      tokenKey,
+            kSecAttrAccessible as String:   kSecAttrAccessibleAfterFirstUnlock,
+            kSecValueData as String:        data,
+        ]
         let status = SecItemAdd(addQuery as CFDictionary, nil)
         guard status == errSecSuccess else {
             throw KeychainError.saveFailed(status)
