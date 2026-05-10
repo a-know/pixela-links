@@ -54,7 +54,9 @@ actor BackgroundSyncCoordinator {
             }
             guard delta > 0 else { return }
 
-            try await pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
+            try await withTimeoutRetry(maxRetries: 5) {
+                try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
+            }
             try? await storage.updateRecord(type: type, value: total, delta: delta)
             try? await storage.recordSendHistory(type: type, delta: delta, value: total)
         } catch let error as PixelaError {
@@ -71,6 +73,18 @@ actor BackgroundSyncCoordinator {
                 message: error.localizedDescription
             )
             try? await storage.recordError(syncError)
+        }
+    }
+
+    private func withTimeoutRetry(maxRetries: Int, operation: () async throws -> Void) async throws {
+        for attempt in 0...maxRetries {
+            do {
+                try await operation()
+                return
+            } catch let urlError as URLError where urlError.code == .timedOut {
+                if attempt == maxRetries { throw urlError }
+                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2秒待機してリトライ
+            }
         }
     }
 }
