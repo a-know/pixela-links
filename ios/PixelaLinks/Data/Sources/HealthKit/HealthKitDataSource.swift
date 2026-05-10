@@ -75,7 +75,14 @@ struct HealthKitDataSource: ActivityDataSource {
                 quantitySamplePredicate: predicate,
                 options: .cumulativeSum
             ) { _, result, error in
-                if let error { continuation.resume(throwing: error); return }
+                if let error {
+                    if (error as? HKError)?.code == .errorNoData {
+                        continuation.resume(returning: 0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                    return
+                }
                 continuation.resume(returning: result?.sumQuantity()?.doubleValue(for: unit) ?? 0)
             }
             store.execute(query)
@@ -97,7 +104,14 @@ struct HealthKitDataSource: ActivityDataSource {
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
             ) { _, samples, error in
-                if let error { continuation.resume(throwing: error); return }
+                if let error {
+                    if (error as? HKError)?.code == .errorNoData {
+                        continuation.resume(returning: 0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                    return
+                }
                 continuation.resume(returning: Double(samples?.count ?? 0))
             }
             store.execute(query)
@@ -116,7 +130,14 @@ struct HealthKitDataSource: ActivityDataSource {
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
             ) { _, samples, error in
-                if let error { continuation.resume(throwing: error); return }
+                if let error {
+                    if (error as? HKError)?.code == .errorNoData {
+                        continuation.resume(returning: 0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                    return
+                }
                 let sleepStages: Set<Int> = [
                     HKCategoryValueSleepAnalysis.asleepCore.rawValue,
                     HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
