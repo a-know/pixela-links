@@ -52,7 +52,7 @@ actor BackgroundSyncCoordinator {
             } else {
                 delta = total
             }
-            guard delta > 0 else { return }
+            guard delta > 0, delta.rounded() > 0 else { return }
 
             try await withTimeoutRetry(maxRetries: 5) {
                 try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)

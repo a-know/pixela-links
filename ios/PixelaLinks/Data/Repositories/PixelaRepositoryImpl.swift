@@ -64,7 +64,8 @@ struct PixelaRepositoryImpl: PixelaRepository {
 
     private func formatQuantity(_ value: Double) -> String {
         let rounded = value.rounded()
-        if abs(value - rounded) < 1e-9 {
+        // 0.1未満の差であれば整数とみなす（HealthKitが返す微小な小数誤差を吸収）
+        if abs(value - rounded) < 0.1 {
             return String(Int(rounded))
         }
         return String(format: "%.2f", value)
