@@ -60,7 +60,7 @@ extension ActivityType {
         case .daylightTime:                  return "日光浴時間（分）"
         case .handwashingCount:              return "手洗い回数"
         case .fallCount:                     return "転倒検知回数"
-        case .cyclingDistance:               return "自転車走行距離"
+        case .cyclingDistance:               return "自転車走行距離（m）"
         case .swimmingDistance:              return "水泳距離"
         case .loudEnvironmentCount:          return "大音量環境曝露回数"
         case .headphoneLoudExposureCount:    return "ヘッドフォン大音量曝露回数"
@@ -98,7 +98,9 @@ extension ActivityType {
             return "回"
         case .walkingDistance, .runningDistance:
             return "m"
-        case .cyclingDistance, .swimmingDistance, .automotiveDistance:
+        case .cyclingDistance:
+            return "m"
+        case .swimmingDistance, .automotiveDistance:
             return "km"
         case .activeEnergyBurned:
             return "kcal"

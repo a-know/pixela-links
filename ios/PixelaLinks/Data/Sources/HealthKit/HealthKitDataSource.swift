@@ -42,8 +42,7 @@ struct HealthKitDataSource: ActivityDataSource {
             return try await querySum(.init(.numberOfTimesFallen), unit: .count(), day: today)
 
         case .cyclingDistance:
-            let m = try await querySum(.init(.distanceCycling), unit: .meter(), day: today)
-            return m / 1000
+            return try await querySum(.init(.distanceCycling), unit: .meter(), day: today)
 
         case .swimmingDistance:
             let m = try await querySum(.init(.distanceSwimming), unit: .meter(), day: today)
