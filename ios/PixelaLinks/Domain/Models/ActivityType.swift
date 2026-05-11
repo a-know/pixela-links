@@ -57,7 +57,7 @@ extension ActivityType {
         case .exerciseTime:                  return "運動時間（分）"
         case .sleepDuration:                 return "睡眠時間（分）"
         case .standTime:                     return "スタンド時間"
-        case .daylightTime:                  return "日光浴時間"
+        case .daylightTime:                  return "日光浴時間（分）"
         case .handwashingCount:              return "手洗い回数"
         case .fallCount:                     return "転倒検知回数"
         case .cyclingDistance:               return "自転車走行距離"
