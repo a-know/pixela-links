@@ -84,19 +84,40 @@ struct ActivityDetailView: View {
 
             // 送信履歴
             if !sendHistory.isEmpty {
-                Section("送信履歴") {
-                    ForEach(sendHistory, id: \.sentAt) { entry in
+                Section {
+                    ForEach(sendHistory.prefix(10), id: \.sentAt) { entry in
                         SendHistoryRowView(entry: entry, unit: activityType.unit)
                     }
+                    if sendHistory.count > 10 {
+                        NavigationLink("すべて表示（\(sendHistory.count)件）") {
+                            FullHistoryView(
+                                title: "送信履歴",
+                                history: sendHistory,
+                                unit: activityType.unit
+                            )
+                        }
+                    }
+                } header: {
+                    Text("送信履歴")
                 }
             }
 
             // エラー履歴
             if !recentErrors.isEmpty {
-                Section("エラー履歴") {
-                    ForEach(recentErrors, id: \.occurredAt) { error in
+                Section {
+                    ForEach(recentErrors.prefix(10), id: \.occurredAt) { error in
                         ErrorRowView(error: error)
                     }
+                    if recentErrors.count > 10 {
+                        NavigationLink("すべて表示（\(recentErrors.count)件）") {
+                            FullErrorView(
+                                title: "エラー履歴",
+                                errors: recentErrors
+                            )
+                        }
+                    }
+                } header: {
+                    Text("エラー履歴")
                 }
             }
         }
@@ -174,6 +195,41 @@ struct ActivityDetailView: View {
             : String(format: "%.2f", value)
     }
 }
+
+// MARK: - Full History Views
+
+struct FullHistoryView: View {
+    let title: String
+    let history: [ActivitySendHistory]
+    let unit: String
+
+    var body: some View {
+        List {
+            ForEach(history, id: \.sentAt) { entry in
+                SendHistoryRowView(entry: entry, unit: unit)
+            }
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct FullErrorView: View {
+    let title: String
+    let errors: [ActivitySyncError]
+
+    var body: some View {
+        List {
+            ForEach(errors, id: \.occurredAt) { error in
+                ErrorRowView(error: error)
+            }
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Row Views
 
 struct SendHistoryRowView: View {
     let entry: ActivitySendHistory
