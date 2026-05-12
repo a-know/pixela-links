@@ -1,5 +1,6 @@
 import HealthKit
 import Foundation
+import UIKit
 
 final class HealthKitBackgroundManager {
     static let shared = HealthKitBackgroundManager()
@@ -45,7 +46,11 @@ final class HealthKitBackgroundManager {
         let query = HKObserverQuery(sampleType: sampleType, predicate: nil) { [weak self] _, completion, error in
             guard error == nil, let self else { completion(); return }
             let types = self.observerMapping[identifier] ?? []
-            Task {
+            Task { @MainActor in
+                guard UIApplication.shared.isProtectedDataAvailable else {
+                    completion()
+                    return
+                }
                 await BackgroundSyncCoordinator.shared.sync(types: types)
                 completion()
             }
