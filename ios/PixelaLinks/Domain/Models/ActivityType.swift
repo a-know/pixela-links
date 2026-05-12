@@ -3,8 +3,7 @@ import Foundation
 enum ActivityType: String, CaseIterable, Identifiable {
     // HealthKit
     case stepCount
-    case walkingDistance
-    case runningDistance
+    case walkingRunningDistance
     case flightsClimbed
     case activeEnergyBurned
     case exerciseTime
@@ -50,8 +49,7 @@ extension ActivityType {
     var displayName: String {
         switch self {
         case .stepCount:                     return "歩数"
-        case .walkingDistance:               return "歩行距離（m）"
-        case .runningDistance:               return "走行距離（m）"
+        case .walkingRunningDistance:        return "歩行・走行距離（m）"
         case .flightsClimbed:                return "上った階数（階）"
         case .activeEnergyBurned:            return "アクティブ消費カロリー（kcal）"
         case .exerciseTime:                  return "運動時間（分）"
@@ -96,9 +94,7 @@ extension ActivityType {
              .calendarEventCount, .completedReminderCount,
              .orientationChangeCount:
             return "回"
-        case .walkingDistance, .runningDistance:
-            return "m"
-        case .cyclingDistance:
+        case .walkingRunningDistance, .cyclingDistance, .cumulativeElevationGain:
             return "m"
         case .swimmingDistance, .automotiveDistance:
             return "km"
@@ -110,8 +106,6 @@ extension ActivityType {
             return "分"
         case .videoRecordingDuration:
             return "秒"
-        case .cumulativeElevationGain:
-            return "m"
         }
     }
 }
@@ -131,7 +125,7 @@ enum ActivityCategory: String, CaseIterable {
 extension ActivityType {
     var category: ActivityCategory {
         switch self {
-        case .stepCount, .walkingDistance, .runningDistance, .flightsClimbed,
+        case .stepCount, .walkingRunningDistance, .flightsClimbed,
              .activeEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount:
@@ -171,7 +165,7 @@ enum BackgroundReliability {
 extension ActivityType {
     var backgroundReliability: BackgroundReliability {
         switch self {
-        case .stepCount, .walkingDistance, .runningDistance, .flightsClimbed,
+        case .stepCount, .walkingRunningDistance, .flightsClimbed,
              .activeEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
@@ -229,7 +223,6 @@ extension ActivityType {
         }
     }
 
-    // Phase 4 で各データソース実装時に精緻化する
     var isAvailableOnDevice: Bool { true }
 }
 

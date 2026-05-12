@@ -4,8 +4,7 @@ extension ActivityType {
     var healthKitSampleType: HKSampleType? {
         switch self {
         case .stepCount:                  return HKQuantityType(.stepCount)
-        case .walkingDistance:            return HKQuantityType(.distanceWalkingRunning)
-        case .runningDistance:            return HKQuantityType(.distanceWalkingRunning)
+        case .walkingRunningDistance:     return HKQuantityType(.distanceWalkingRunning)
         case .flightsClimbed:             return HKQuantityType(.flightsClimbed)
         case .activeEnergyBurned:         return HKQuantityType(.activeEnergyBurned)
         case .exerciseTime:               return HKQuantityType(.appleExerciseTime)

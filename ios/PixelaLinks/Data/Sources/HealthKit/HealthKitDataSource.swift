@@ -13,7 +13,7 @@ struct HealthKitDataSource: ActivityDataSource {
         case .stepCount:
             return try await querySum(.init(.stepCount), unit: .count(), day: today)
 
-        case .walkingDistance, .runningDistance:
+        case .walkingRunningDistance:
             return try await querySum(.init(.distanceWalkingRunning), unit: .meter(), day: today)
 
         case .flightsClimbed:
