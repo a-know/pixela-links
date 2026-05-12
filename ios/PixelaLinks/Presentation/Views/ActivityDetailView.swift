@@ -102,12 +102,30 @@ struct ActivityDetailView: View {
         }
         .navigationTitle(activityType.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let url = graphPageURL {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Link(destination: url) {
+                        Image(systemName: "arrow.up.right.square")
+                    }
+                }
+            }
+        }
         .onAppear {
             viewModel.loadIfNeeded(from: modelContext)
             if viewModel.isEnabled {
                 Task { await viewModel.loadGraphs() }
             }
         }
+    }
+
+    // MARK: - Graph Page URL
+
+    private var graphPageURL: URL? {
+        guard !viewModel.selectedGraphID.isEmpty else { return nil }
+        let account = PixelaAccountConfig.load()
+        guard !account.username.isEmpty else { return nil }
+        return URL(string: "https://pixe.la/v1/users/\(account.username)/graphs/\(viewModel.selectedGraphID).html")
     }
 
     // MARK: - Graph Picker
