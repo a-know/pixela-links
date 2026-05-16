@@ -5,6 +5,7 @@ protocol PixelaRepository: Sendable {
     func updatePixel(value: Double, graphID: String) async throws
     func validateAccount(username: String, token: String) async throws
     func fetchGraphs() async throws -> [PixelaGraph]
+    func createGraph(id: String, name: String, unit: String, type: String, color: String, timezone: String?, description: String?, isSecret: Bool) async throws
 }
 
 enum PixelaError: Error, LocalizedError {

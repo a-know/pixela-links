@@ -131,6 +131,24 @@ struct ActivityDetailView: View {
                     }
                 }
             }
+            if viewModel.isEnabled && viewModel.selectedGraphID.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.showingCreateGraph = true
+                    } label: {
+                        Image(systemName: "plus.rectangle.on.rectangle")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $viewModel.showingCreateGraph) {
+            CreateGraphSheet(activityType: activityType) { id, name, unit, type, color, timezone, description, isSecret in
+                try await viewModel.createGraph(
+                    id: id, name: name, unit: unit, type: type, color: color,
+                    timezone: timezone, description: description, isSecret: isSecret,
+                    context: modelContext
+                )
+            }
         }
         .onAppear {
             viewModel.loadIfNeeded(from: modelContext)
@@ -279,5 +297,160 @@ struct ErrorRowView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
+    }
+}
+
+// MARK: - Create Graph Sheet
+
+struct CreateGraphSheet: View {
+    let activityType: ActivityType
+    let onCreate: (String, String, String, String, String, String, String, Bool) async throws -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var graphID: String
+    @State private var name: String
+    @State private var unit: String
+    @State private var type: String
+    @State private var color: String = ""
+    @State private var timezone: String
+    @State private var description: String
+    @State private var isSecret: Bool = false
+    @State private var isCreating = false
+    @State private var errorMessage: String? = nil
+
+    private static let colorOptions: [(value: String, label: String)] = [
+        ("shibafu", "緑 (shibafu)"),
+        ("momiji",  "赤 (momiji)"),
+        ("sora",    "青 (sora)"),
+        ("ichou",   "黄 (ichou)"),
+        ("ajisai",  "紫 (ajisai)"),
+        ("kuro",    "黒 (kuro)"),
+    ]
+
+    init(activityType: ActivityType, onCreate: @escaping (String, String, String, String, String, String, String, Bool) async throws -> Void) {
+        self.activityType = activityType
+        self.onCreate = onCreate
+        _graphID     = State(initialValue: String(activityType.rawValue.lowercased().prefix(16)))
+        _name        = State(initialValue: activityType.displayName)
+        _unit        = State(initialValue: activityType.unit)
+        _type        = State(initialValue: activityType.isIntegerValue ? "int" : "float")
+        _timezone    = State(initialValue: TimeZone.current.identifier)
+        let device = activityType.requiresAppleWatch ? "Apple Watch" : "iPhone"
+        _description = State(initialValue: "\(device)で計測した\(activityType.displayName)")
+    }
+
+    private var isGraphIDValid: Bool {
+        guard let first = graphID.first, first.isLowercase, first.isLetter else { return false }
+        let validChars = CharacterSet.lowercaseLetters.union(.decimalDigits).union(CharacterSet(charactersIn: "-"))
+        return graphID.count <= 16 && graphID.unicodeScalars.allSatisfy { validChars.contains($0) }
+    }
+
+    private var canCreate: Bool {
+        isGraphIDValid && !name.isEmpty && !unit.isEmpty && !color.isEmpty && !isCreating
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("グラフ情報") {
+                    LabeledContent("グラフID") {
+                        TextField("", text: $graphID)
+                            .multilineTextAlignment(.trailing)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+                    if !graphID.isEmpty && !isGraphIDValid {
+                        Label("小文字英字で始まり、小文字英数字とハイフンのみ、最大16文字",
+                              systemImage: "exclamationmark.circle")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+
+                    LabeledContent("グラフ名") {
+                        TextField("", text: $name)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    LabeledContent("単位") {
+                        TextField("", text: $unit)
+                            .multilineTextAlignment(.trailing)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+
+                    Picker("値の種類", selection: $type) {
+                        Text("整数 (int)").tag("int")
+                        Text("小数 (float)").tag("float")
+                    }
+
+                    Picker("カラー", selection: $color) {
+                        Text("（未選択）").tag("")
+                        ForEach(Self.colorOptions, id: \.value) { option in
+                            Text(option.label).tag(option.value)
+                        }
+                    }
+                }
+
+                Section("オプション") {
+                    Picker("タイムゾーン", selection: $timezone) {
+                        Text("（未選択）").tag("")
+                        ForEach(TimeZone.knownTimeZoneIdentifiers, id: \.self) { tz in
+                            Text(tz).tag(tz)
+                        }
+                    }
+
+                    LabeledContent("グラフの説明") {
+                        TextField("", text: $description)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Toggle("非公開", isOn: $isSecret)
+                }
+
+                Section {
+                    if let message = errorMessage {
+                        Label(message, systemImage: "xmark.circle")
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+
+                    Button {
+                        Task { await create() }
+                    } label: {
+                        HStack {
+                            Text("グラフを作成")
+                            if isCreating {
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(!canCreate)
+                }
+            }
+            .navigationTitle("グラフを新規作成")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("キャンセル") { dismiss() }
+                        .disabled(isCreating)
+                }
+            }
+        }
+    }
+
+    private func create() async {
+        isCreating = true
+        errorMessage = nil
+        do {
+            try await onCreate(graphID, name, unit, type, color, timezone, description, isSecret)
+            dismiss()
+        } catch let error as PixelaError {
+            errorMessage = error.localizedDescription
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isCreating = false
     }
 }

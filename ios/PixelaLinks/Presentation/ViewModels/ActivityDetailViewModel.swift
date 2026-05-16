@@ -13,6 +13,8 @@ final class ActivityDetailViewModel {
     var isLoadingGraphs: Bool = false
     var graphsError: String? = nil
 
+    var showingCreateGraph: Bool = false
+
     private var hasLoaded = false
     private let pixelaRepo: any PixelaRepository = PixelaRepositoryImpl()
 
@@ -42,6 +44,15 @@ final class ActivityDetailViewModel {
             graphs = []
         }
         isLoadingGraphs = false
+    }
+
+    func createGraph(id: String, name: String, unit: String, type: String, color: String, timezone: String, description: String, isSecret: Bool, context: ModelContext) async throws {
+        let tz   = timezone.isEmpty    ? nil : timezone
+        let desc = description.isEmpty ? nil : description
+        try await pixelaRepo.createGraph(id: id, name: name, unit: unit, type: type, color: color, timezone: tz, description: desc, isSecret: isSecret)
+        await loadGraphs()
+        selectedGraphID = id
+        save(to: context)
     }
 
     func save(to context: ModelContext) {
