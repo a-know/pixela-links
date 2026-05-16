@@ -52,15 +52,16 @@ final class MotionActivityTracker {
             }
         }
 
-        return automotiveMinutes(from: activities, dayEnd: today.end)
+        return automotiveMinutes(from: activities, dayStart: today.start, dayEnd: today.end)
     }
 
-    private func automotiveMinutes(from activities: [CMMotionActivity], dayEnd: Date) -> Double {
+    private func automotiveMinutes(from activities: [CMMotionActivity], dayStart: Date, dayEnd: Date) -> Double {
         guard !activities.isEmpty else { return 0 }
         var total = 0.0
         for (i, activity) in activities.enumerated() {
             guard activity.automotive else { continue }
-            let start = activity.startDate
+            // クエリが日付跨ぎのアクティビティを返す場合があるため開始時刻を今日の0:00にクランプ
+            let start = max(activity.startDate, dayStart)
             let end = i + 1 < activities.count
                 ? activities[i + 1].startDate
                 : min(dayEnd, Date.now)
