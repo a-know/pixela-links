@@ -45,22 +45,32 @@ actor BackgroundSyncCoordinator {
 
         do {
             let rawTotal = try await source.fetchTodayTotal()
-            let total = type.isIntegerValue ? rawTotal.rounded() : rawTotal
-            let recordDTO = try? await storage.recordDTO(for: type)
-            let rawDelta: Double
-            if let recordDTO, !recordDTO.requiresReset {
-                rawDelta = total - recordDTO.lastSentValue
-            } else {
-                rawDelta = total
-            }
-            let delta = type.isIntegerValue ? rawDelta.rounded() : rawDelta
-            guard delta > 0, delta.rounded() > 0 else { return }
 
-            try await withTimeoutRetry(maxRetries: 5) {
-                try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
+            if type.isAverageMetric {
+                guard rawTotal > 0 else { return }
+                try await withTimeoutRetry(maxRetries: 5) {
+                    try await self.pixelaRepo.updatePixel(value: rawTotal, graphID: configDTO.pixelaGraphID)
+                }
+                try? await storage.updateRecord(type: type, value: rawTotal, delta: rawTotal)
+                try? await storage.recordSendHistory(type: type, delta: rawTotal, value: rawTotal)
+            } else {
+                let total = type.isIntegerValue ? rawTotal.rounded() : rawTotal
+                let recordDTO = try? await storage.recordDTO(for: type)
+                let rawDelta: Double
+                if let recordDTO, !recordDTO.requiresReset {
+                    rawDelta = total - recordDTO.lastSentValue
+                } else {
+                    rawDelta = total
+                }
+                let delta = type.isIntegerValue ? rawDelta.rounded() : rawDelta
+                guard delta > 0, delta.rounded() > 0 else { return }
+
+                try await withTimeoutRetry(maxRetries: 5) {
+                    try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
+                }
+                try? await storage.updateRecord(type: type, value: total, delta: delta)
+                try? await storage.recordSendHistory(type: type, delta: delta, value: total)
             }
-            try? await storage.updateRecord(type: type, value: total, delta: delta)
-            try? await storage.recordSendHistory(type: type, delta: delta, value: total)
         } catch let error as PixelaError {
             let syncError = ActivitySyncError(
                 activityType: type,

@@ -17,6 +17,17 @@ enum ActivityType: String, CaseIterable, Identifiable {
     case swimmingDistance
     case loudEnvironmentCount
     case headphoneLoudExposureCount
+    // HealthKit（平均値）
+    case physicalEffort
+    case heartRate
+    case oxygenSaturation
+    case heartRateVariabilitySDNN
+    case walkingHeartRateAverage
+    case restingHeartRate
+    case walkingSpeed
+    case walkingDoubleSupportPercentage
+    case walkingStepLength
+    case walkingAsymmetryPercentage
     // 写真・メディア
     case photoLibraryAddCount
     case screenshotCount
@@ -64,6 +75,16 @@ extension ActivityType {
         case .swimmingDistance:              return "水泳距離"
         case .loudEnvironmentCount:          return "大音量環境曝露回数"
         case .headphoneLoudExposureCount:    return "ヘッドフォン大音量曝露回数"
+        case .physicalEffort:                return "身体エフォート（METs）"
+        case .heartRate:                     return "心拍数（bpm）"
+        case .oxygenSaturation:              return "血中酸素濃度（%）"
+        case .heartRateVariabilitySDNN:      return "心拍変動（ms）"
+        case .walkingHeartRateAverage:       return "歩行時平均心拍数（bpm）"
+        case .restingHeartRate:              return "安静時心拍数（bpm）"
+        case .walkingSpeed:                  return "歩行速度（m/s）"
+        case .walkingDoubleSupportPercentage: return "歩行両足支持時間（%）"
+        case .walkingStepLength:             return "歩幅（cm）"
+        case .walkingAsymmetryPercentage:    return "歩行非対称性（%）"
         case .photoLibraryAddCount:          return "カメラロール追加枚数"
         case .screenshotCount:               return "スクリーンショット撮影回数"
         case .videoRecordingDuration:        return "動画撮影時間"
@@ -108,6 +129,18 @@ extension ActivityType {
             return "分"
         case .videoRecordingDuration:
             return "秒"
+        case .physicalEffort:
+            return "METs"
+        case .heartRate, .walkingHeartRateAverage, .restingHeartRate:
+            return "bpm"
+        case .oxygenSaturation, .walkingDoubleSupportPercentage, .walkingAsymmetryPercentage:
+            return "%"
+        case .heartRateVariabilitySDNN:
+            return "ms"
+        case .walkingSpeed:
+            return "m/s"
+        case .walkingStepLength:
+            return "cm"
         }
     }
 }
@@ -130,7 +163,10 @@ extension ActivityType {
         case .stepCount, .walkingRunningDistance, .flightsClimbed,
              .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
-             .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount:
+             .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
+             .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
+             .walkingHeartRateAverage, .restingHeartRate, .walkingSpeed,
+             .walkingDoubleSupportPercentage, .walkingStepLength, .walkingAsymmetryPercentage:
             return .healthKit
         case .photoLibraryAddCount, .screenshotCount, .videoRecordingDuration:
             return .photoMedia
@@ -171,6 +207,9 @@ extension ActivityType {
              .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
+             .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
+             .walkingHeartRateAverage, .restingHeartRate, .walkingSpeed,
+             .walkingDoubleSupportPercentage, .walkingStepLength, .walkingAsymmetryPercentage,
              .significantLocationChangeCount, .timeOutside, .bluetoothConnectionCount:
             return .high
         case .photoLibraryAddCount, .screenshotCount, .videoRecordingDuration,
@@ -201,6 +240,19 @@ extension ActivityType {
             return false
         }
     }
+
+    var isAverageMetric: Bool {
+        switch self {
+        case .physicalEffort, .heartRate, .oxygenSaturation,
+             .heartRateVariabilitySDNN, .walkingHeartRateAverage,
+             .restingHeartRate, .walkingSpeed,
+             .walkingDoubleSupportPercentage, .walkingStepLength,
+             .walkingAsymmetryPercentage:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Hardware Requirements
@@ -209,7 +261,9 @@ extension ActivityType {
     var requiresAppleWatch: Bool {
         switch self {
         case .standTime, .handwashingCount, .fallCount,
-             .cyclingDistance, .swimmingDistance:
+             .cyclingDistance, .swimmingDistance,
+             .physicalEffort, .heartRate, .oxygenSaturation,
+             .heartRateVariabilitySDNN, .walkingHeartRateAverage, .restingHeartRate:
             return true
         default:
             return false

@@ -18,6 +18,16 @@ extension ActivityType {
         case .swimmingDistance:           return HKQuantityType(.distanceSwimming)
         case .loudEnvironmentCount:       return HKCategoryType(.environmentalAudioExposureEvent)
         case .headphoneLoudExposureCount: return HKCategoryType(.headphoneAudioExposureEvent)
+        case .physicalEffort:             return HKQuantityType(.physicalEffort)
+        case .heartRate:                  return HKQuantityType(.heartRate)
+        case .oxygenSaturation:           return HKQuantityType(.oxygenSaturation)
+        case .heartRateVariabilitySDNN:   return HKQuantityType(.heartRateVariabilitySDNN)
+        case .walkingHeartRateAverage:    return HKQuantityType(.walkingHeartRateAverage)
+        case .restingHeartRate:           return HKQuantityType(.restingHeartRate)
+        case .walkingSpeed:               return HKQuantityType(.walkingSpeed)
+        case .walkingDoubleSupportPercentage: return HKQuantityType(.walkingDoubleSupportPercentage)
+        case .walkingStepLength:          return HKQuantityType(.walkingStepLength)
+        case .walkingAsymmetryPercentage: return HKQuantityType(.walkingAsymmetryPercentage)
         default:                          return nil
         }
     }

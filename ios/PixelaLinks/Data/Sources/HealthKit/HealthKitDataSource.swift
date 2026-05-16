@@ -57,6 +57,39 @@ struct HealthKitDataSource: ActivityDataSource {
         case .headphoneLoudExposureCount:
             return try await queryCategoryCount(.init(.headphoneAudioExposureEvent), day: today)
 
+        case .physicalEffort:
+            return try await queryAverage(.init(.physicalEffort), unit: HKUnit(from: "kcal/(kg*hr)"), day: today)
+
+        case .heartRate:
+            return try await queryAverage(.init(.heartRate), unit: .count().unitDivided(by: .minute()), day: today)
+
+        case .oxygenSaturation:
+            let v = try await queryAverage(.init(.oxygenSaturation), unit: .percent(), day: today)
+            return v * 100
+
+        case .heartRateVariabilitySDNN:
+            return try await queryAverage(.init(.heartRateVariabilitySDNN), unit: .secondUnit(with: .milli), day: today)
+
+        case .walkingHeartRateAverage:
+            return try await queryAverage(.init(.walkingHeartRateAverage), unit: .count().unitDivided(by: .minute()), day: today)
+
+        case .restingHeartRate:
+            return try await queryAverage(.init(.restingHeartRate), unit: .count().unitDivided(by: .minute()), day: today)
+
+        case .walkingSpeed:
+            return try await queryAverage(.init(.walkingSpeed), unit: .meter().unitDivided(by: .second()), day: today)
+
+        case .walkingDoubleSupportPercentage:
+            let v = try await queryAverage(.init(.walkingDoubleSupportPercentage), unit: .percent(), day: today)
+            return v * 100
+
+        case .walkingStepLength:
+            return try await queryAverage(.init(.walkingStepLength), unit: .meterUnit(with: .centi), day: today)
+
+        case .walkingAsymmetryPercentage:
+            let v = try await queryAverage(.init(.walkingAsymmetryPercentage), unit: .percent(), day: today)
+            return v * 100
+
         default:
             return 0
         }
@@ -115,6 +148,35 @@ struct HealthKitDataSource: ActivityDataSource {
                     return
                 }
                 continuation.resume(returning: Double(samples?.count ?? 0))
+            }
+            store.execute(query)
+        }
+    }
+
+    private func queryAverage(
+        _ quantityType: HKQuantityType,
+        unit: HKUnit,
+        day: DateInterval
+    ) async throws -> Double {
+        let predicate = HKQuery.predicateForSamples(
+            withStart: day.start, end: day.end, options: .strictStartDate
+        )
+        let store = HKHealthStore()
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: quantityType,
+                quantitySamplePredicate: predicate,
+                options: .discreteAverage
+            ) { _, result, error in
+                if let error {
+                    if (error as? HKError)?.code == .errorNoData {
+                        continuation.resume(returning: 0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
+                    return
+                }
+                continuation.resume(returning: result?.averageQuantity()?.doubleValue(for: unit) ?? 0)
             }
             store.execute(query)
         }

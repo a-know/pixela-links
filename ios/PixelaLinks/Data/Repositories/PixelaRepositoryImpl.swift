@@ -27,6 +27,33 @@ struct PixelaRepositoryImpl: PixelaRepository {
         }
     }
 
+    func updatePixel(value: Double, graphID: String) async throws {
+        let account = PixelaAccountConfig.load()
+        guard account.isConfigured, let token = KeychainStore.loadToken() else {
+            throw PixelaError.authenticationFailed
+        }
+        let date = DateFormatter.pixelaDate.string(from: .now)
+        let urlString = "https://pixe.la/v1/users/\(account.username)/graphs/\(graphID)/\(date)"
+        guard let url = URL(string: urlString) else {
+            throw PixelaError.requestFailed(0, nil)
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue(token, forHTTPHeaderField: "X-USER-TOKEN")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let quantity = formatQuantity(value)
+        request.httpBody = try JSONEncoder().encode(PixelPayload(quantity: quantity))
+
+        let (data, response) = try await NetworkClient.foregroundSession.data(for: request)
+        guard let http = response as? HTTPURLResponse,
+              (200..<300).contains(http.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let rawMessage = (try? JSONDecoder().decode(PixelaResponse.self, from: data))?.message
+            let message = rawMessage.map { $0 == "Quantity is invalid." ? "Quantity (\(quantity)) is invalid." : $0 }
+            throw PixelaError.requestFailed(code, message)
+        }
+    }
+
     func validateAccount(username: String, token: String) async throws {
         guard let url = URL(string: "https://pixe.la/v1/users/\(username)/authentication") else {
             throw PixelaError.requestFailed(0, nil)
