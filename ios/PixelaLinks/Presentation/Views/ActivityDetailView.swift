@@ -511,7 +511,7 @@ struct BackfillSheet: View {
                     Label("この操作は1回のみ実行できます。",
                           systemImage: "exclamationmark.circle")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Label("Pixela Supporterアカウントが必要です。",
+                    Label("連携されているアカウントが Pixela Supporter（Userのthanks-codeプロパティに適切なコードが設定されているアカウント）である必要があります。",
                           systemImage: "exclamationmark.circle")
                         .font(.footnote).foregroundStyle(.orange)
                 }
