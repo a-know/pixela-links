@@ -14,6 +14,8 @@ final class ActivityDetailViewModel {
     var graphsError: String? = nil
 
     var showingCreateGraph: Bool = false
+    var showingBackfill: Bool = false
+    var isBackfillCompleted: Bool = false
 
     private var hasLoaded = false
     private let pixelaRepo: any PixelaRepository = PixelaRepositoryImpl()
@@ -32,6 +34,7 @@ final class ActivityDetailViewModel {
         guard let config = try? context.fetch(descriptor).first else { return }
         isEnabled = config.isEnabled
         selectedGraphID = config.pixelaGraphID
+        isBackfillCompleted = config.isBackfillCompleted
     }
 
     func loadGraphs() async {
@@ -53,6 +56,18 @@ final class ActivityDetailViewModel {
         await loadGraphs()
         selectedGraphID = id
         save(to: context)
+    }
+
+    func markBackfillCompleted(context: ModelContext) {
+        let rawValue = activityType.rawValue
+        let descriptor = FetchDescriptor<ActivitySyncConfig>(
+            predicate: #Predicate { $0.activityType == rawValue }
+        )
+        if let config = try? context.fetch(descriptor).first {
+            config.isBackfillCompleted = true
+            try? context.save()
+        }
+        isBackfillCompleted = true
     }
 
     func save(to context: ModelContext) {

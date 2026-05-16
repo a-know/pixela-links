@@ -82,6 +82,23 @@ struct ActivityDetailView: View {
                 }
             }
 
+            // 過去データの一括送信
+            if activityType.category == .healthKit && viewModel.isEnabled && !viewModel.selectedGraphID.isEmpty {
+                Section {
+                    Button("過去のデータを送信") {
+                        viewModel.showingBackfill = true
+                    }
+                    .disabled(viewModel.isBackfillCompleted)
+
+                    Label("直近365日のHealthKitデータのうち、このアプリのリアルタイム送信済みの日を除いて一括送信します。この操作は1回のみ実行できます。",
+                          systemImage: "info.circle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("過去データの一括送信")
+                }
+            }
+
             // 送信履歴
             if !sendHistory.isEmpty {
                 Section {
@@ -141,6 +158,14 @@ struct ActivityDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $viewModel.showingBackfill) {
+            BackfillSheet(
+                activityType: activityType,
+                graphID: viewModel.selectedGraphID,
+                sentDates: sentDatesForBackfill,
+                onCompleted: { viewModel.markBackfillCompleted(context: modelContext) }
+            )
+        }
         .sheet(isPresented: $viewModel.showingCreateGraph) {
             CreateGraphSheet(activityType: activityType) { id, name, unit, type, color, timezone, description, isSecret in
                 try await viewModel.createGraph(
@@ -156,6 +181,12 @@ struct ActivityDetailView: View {
                 Task { await viewModel.loadGraphs() }
             }
         }
+    }
+
+    // MARK: - Backfill
+
+    private var sentDatesForBackfill: Set<String> {
+        Set(sendHistory.map { DateFormatter.pixelaDate.string(from: $0.sentAt) })
     }
 
     // MARK: - Graph Page URL
@@ -452,5 +483,112 @@ struct CreateGraphSheet: View {
             errorMessage = error.localizedDescription
         }
         isCreating = false
+    }
+}
+
+// MARK: - Backfill Sheet
+
+struct BackfillSheet: View {
+    let activityType: ActivityType
+    let graphID: String
+    let sentDates: Set<String>
+    let onCompleted: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var isSending = false
+    @State private var result: (sent: Int, skipped: Int)? = nil
+    @State private var errorMessage: String? = nil
+
+    private let pixelaRepo: any PixelaRepository = PixelaRepositoryImpl()
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Label("直近365日のHealthKitデータのうち、このアプリのリアルタイム送信済みの日を除いて一括送信します。",
+                          systemImage: "info.circle")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    Label("この操作は1回のみ実行できます。",
+                          systemImage: "exclamationmark.circle")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    Label("Pixela Supporterアカウントが必要です。",
+                          systemImage: "exclamationmark.circle")
+                        .font(.footnote).foregroundStyle(.orange)
+                }
+
+                if let result {
+                    Section {
+                        Label("\(result.sent)件送信しました（\(result.skipped)件はデータなしまたは送信済みのためスキップ）",
+                              systemImage: "checkmark.circle")
+                            .font(.footnote).foregroundStyle(.green)
+                    }
+                }
+
+                if let message = errorMessage {
+                    Section {
+                        Label(message, systemImage: "xmark.circle")
+                            .font(.footnote).foregroundStyle(.red)
+                    }
+                }
+
+                if result == nil {
+                    Section {
+                        Button {
+                            Task { await run() }
+                        } label: {
+                            HStack {
+                                Text("送信する")
+                                if isSending { Spacer(); ProgressView() }
+                            }
+                        }
+                        .disabled(isSending)
+                    }
+                }
+            }
+            .navigationTitle("過去のデータを送信")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("閉じる") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func run() async {
+        isSending = true
+        errorMessage = nil
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        guard let endDate = calendar.date(byAdding: .day, value: -1, to: today),
+              let startDate = calendar.date(byAdding: .day, value: -(365 + sentDates.count), to: today) else {
+            isSending = false
+            return
+        }
+        do {
+            let source = HealthKitDataSource(type: activityType)
+            let allEntries = try await source.fetchDailyHistory(from: startDate, to: endDate)
+            let formatter = DateFormatter.pixelaDate
+            let candidates = allEntries.filter { $0.value > 0 && !sentDates.contains(formatter.string(from: $0.date)) }
+            let toSend = Array(candidates.sorted { $0.date > $1.date }.prefix(365))
+            let skipped = allEntries.count - toSend.count
+            if !toSend.isEmpty {
+                let pixels = toSend.map { (formatter.string(from: $0.date), formatQuantity($0.value)) }
+                try await pixelaRepo.batchPostPixels(pixels: pixels, graphID: graphID)
+            }
+            result = (sent: toSend.count, skipped: skipped)
+            onCompleted()
+        } catch let e as PixelaError {
+            errorMessage = e.localizedDescription
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isSending = false
+    }
+
+    private func formatQuantity(_ value: Double) -> String {
+        let v = activityType.isIntegerValue ? value.rounded() : value
+        let rounded = v.rounded()
+        return abs(v - rounded) < 0.1 ? String(Int(rounded)) : String(format: "%.2f", v)
     }
 }

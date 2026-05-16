@@ -6,6 +6,7 @@ final class ActivitySyncConfig {
     var activityType: String
     var isEnabled: Bool
     var pixelaGraphID: String
+    var isBackfillCompleted: Bool
     var createdAt: Date
     var updatedAt: Date
 
@@ -13,6 +14,7 @@ final class ActivitySyncConfig {
         self.activityType = activityType.rawValue
         self.isEnabled = true
         self.pixelaGraphID = graphID
+        self.isBackfillCompleted = false
         self.createdAt = .now
         self.updatedAt = .now
     }
