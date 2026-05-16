@@ -6,6 +6,7 @@ enum ActivityType: String, CaseIterable, Identifiable {
     case walkingRunningDistance
     case flightsClimbed
     case activeEnergyBurned
+    case basalEnergyBurned
     case exerciseTime
     case sleepDuration
     case standTime
@@ -52,6 +53,7 @@ extension ActivityType {
         case .walkingRunningDistance:        return "歩行・走行距離（m）"
         case .flightsClimbed:                return "上った階数（階）"
         case .activeEnergyBurned:            return "アクティブ消費カロリー（kcal）"
+        case .basalEnergyBurned:             return "安静時消費カロリー（kcal）"
         case .exerciseTime:                  return "運動時間（分）"
         case .sleepDuration:                 return "睡眠時間（分）"
         case .standTime:                     return "スタンド時間"
@@ -98,7 +100,7 @@ extension ActivityType {
             return "m"
         case .swimmingDistance, .automotiveDistance:
             return "km"
-        case .activeEnergyBurned:
+        case .activeEnergyBurned, .basalEnergyBurned:
             return "kcal"
         case .exerciseTime, .sleepDuration, .standTime, .daylightTime,
              .automotiveTime, .timeOutside, .callDuration,
@@ -126,7 +128,7 @@ extension ActivityType {
     var category: ActivityCategory {
         switch self {
         case .stepCount, .walkingRunningDistance, .flightsClimbed,
-             .activeEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
+             .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount:
             return .healthKit
@@ -166,7 +168,7 @@ extension ActivityType {
     var backgroundReliability: BackgroundReliability {
         switch self {
         case .stepCount, .walkingRunningDistance, .flightsClimbed,
-             .activeEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
+             .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
              .significantLocationChangeCount, .timeOutside, .bluetoothConnectionCount:

@@ -7,6 +7,7 @@ extension ActivityType {
         case .walkingRunningDistance:     return HKQuantityType(.distanceWalkingRunning)
         case .flightsClimbed:             return HKQuantityType(.flightsClimbed)
         case .activeEnergyBurned:         return HKQuantityType(.activeEnergyBurned)
+        case .basalEnergyBurned:          return HKQuantityType(.basalEnergyBurned)
         case .exerciseTime:               return HKQuantityType(.appleExerciseTime)
         case .sleepDuration:              return HKCategoryType(.sleepAnalysis)
         case .standTime:                  return HKQuantityType(.appleStandTime)

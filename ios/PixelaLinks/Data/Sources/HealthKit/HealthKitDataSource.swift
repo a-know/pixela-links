@@ -22,6 +22,9 @@ struct HealthKitDataSource: ActivityDataSource {
         case .activeEnergyBurned:
             return try await querySum(.init(.activeEnergyBurned), unit: .kilocalorie(), day: today)
 
+        case .basalEnergyBurned:
+            return try await querySum(.init(.basalEnergyBurned), unit: .kilocalorie(), day: today)
+
         case .exerciseTime:
             return try await querySum(.init(.appleExerciseTime), unit: .minute(), day: today)
 
