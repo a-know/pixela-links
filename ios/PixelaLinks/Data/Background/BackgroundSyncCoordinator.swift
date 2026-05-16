@@ -48,9 +48,7 @@ actor BackgroundSyncCoordinator {
 
             if type.isAverageMetric {
                 guard rawTotal > 0 else { return }
-                try await withTimeoutRetry(maxRetries: 5) {
-                    try await self.pixelaRepo.updatePixel(value: rawTotal, graphID: configDTO.pixelaGraphID)
-                }
+                try await self.pixelaRepo.updatePixel(value: rawTotal, graphID: configDTO.pixelaGraphID)
                 try? await storage.updateRecord(type: type, value: rawTotal, delta: rawTotal)
                 try? await storage.recordSendHistory(type: type, delta: rawTotal, value: rawTotal)
             } else {
@@ -65,9 +63,7 @@ actor BackgroundSyncCoordinator {
                 let delta = type.isIntegerValue ? rawDelta.rounded() : rawDelta
                 guard delta > 0, delta.rounded() > 0 else { return }
 
-                try await withTimeoutRetry(maxRetries: 5) {
-                    try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
-                }
+                try await self.pixelaRepo.addPixel(delta: delta, graphID: configDTO.pixelaGraphID)
                 try? await storage.updateRecord(type: type, value: total, delta: delta)
                 try? await storage.recordSendHistory(type: type, delta: delta, value: total)
             }
@@ -88,15 +84,4 @@ actor BackgroundSyncCoordinator {
         }
     }
 
-    private func withTimeoutRetry(maxRetries: Int, operation: () async throws -> Void) async throws {
-        for attempt in 0...maxRetries {
-            do {
-                try await operation()
-                return
-            } catch let urlError as URLError where urlError.code == .timedOut {
-                if attempt == maxRetries { throw urlError }
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2秒待機してリトライ
-            }
-        }
-    }
 }
