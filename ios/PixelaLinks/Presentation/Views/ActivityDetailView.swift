@@ -90,10 +90,17 @@ struct ActivityDetailView: View {
                     }
                     .disabled(viewModel.isBackfillCompleted)
 
-                    Label("直近365日のHealthKitデータのうち、このアプリのリアルタイム送信済みの日を除いて一括送信します。この操作は1回のみ実行できます。",
-                          systemImage: "info.circle")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if viewModel.isBackfillCompleted {
+                        Label("すでに送信済みのため、利用できません。",
+                              systemImage: "checkmark.circle")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Label("直近365日のHealthKitデータのうち、このアプリのリアルタイム送信済みの日を除いて一括送信します。この操作は1回のみ実行できます。",
+                              systemImage: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 } header: {
                     Text("過去データの一括送信")
                 }
