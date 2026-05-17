@@ -287,7 +287,7 @@ struct ActivityDetailView: View {
                         .foregroundStyle(.red)
                 }
 
-                Label("自宅を設定すると、自宅の外にいる時間を正確に計測できます。",
+                Label("自宅を設定すると、自宅の外にいる時間を正確に計測できます。設定した位置情報はこの端末にのみ保存され、外部に送信されることはありません。",
                       systemImage: "info.circle")
                     .font(.caption)
                     .foregroundStyle(.secondary)
