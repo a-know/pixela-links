@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct ActivityDetailView: View {
     let activityType: ActivityType
@@ -9,6 +10,10 @@ struct ActivityDetailView: View {
     @Query private var records: [ActivitySyncRecord]
     @Query private var allErrors: [ActivitySyncError]
     @Query private var allHistory: [ActivitySendHistory]
+
+    @State private var homeCoordinate: CLLocationCoordinate2D? = LocationBackgroundManager.shared.homeCoordinate
+    @State private var isSettingHome = false
+    @State private var homeSettingError: String? = nil
 
     init(activityType: ActivityType) {
         self.activityType = activityType
@@ -68,6 +73,11 @@ struct ActivityDetailView: View {
                         .font(.footnote)
                         .foregroundStyle(.orange)
                 }
+            }
+
+            // 自宅設定（timeOutside のみ）
+            if activityType == .timeOutside {
+                homeLocationSection
             }
 
             // 送信状況
@@ -241,6 +251,63 @@ struct ActivityDetailView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    // MARK: - Home Location
+
+    @ViewBuilder
+    private var homeLocationSection: some View {
+        Section {
+            if let coord = homeCoordinate {
+                LabeledContent("自宅の位置") {
+                    Text(String(format: "%.5f, %.5f", coord.latitude, coord.longitude))
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+                Button(role: .destructive) {
+                    LocationBackgroundManager.shared.removeHomeLocation()
+                    homeCoordinate = nil
+                } label: {
+                    Text("自宅を削除")
+                }
+            } else {
+                Button {
+                    Task { await setCurrentLocationAsHome() }
+                } label: {
+                    HStack {
+                        Text("現在地を自宅に設定")
+                        if isSettingHome { Spacer(); ProgressView() }
+                    }
+                }
+                .disabled(isSettingHome)
+
+                if let error = homeSettingError {
+                    Label(error, systemImage: "xmark.circle")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+
+                Label("自宅を設定すると、自宅の外にいる時間を正確に計測できます。",
+                      systemImage: "info.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } header: {
+            Text("自宅の設定")
+        }
+    }
+
+    private func setCurrentLocationAsHome() async {
+        isSettingHome = true
+        homeSettingError = nil
+        do {
+            let coord = try await LocationBackgroundManager.shared.requestCurrentCoordinate()
+            LocationBackgroundManager.shared.setHomeLocation(coord)
+            homeCoordinate = coord
+        } catch {
+            homeSettingError = "現在地の取得に失敗しました"
+        }
+        isSettingHome = false
     }
 
     // MARK: - Helpers
