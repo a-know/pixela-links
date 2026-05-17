@@ -35,8 +35,6 @@ enum ActivityType: String, CaseIterable, Identifiable {
     // 位置・移動
     case significantLocationChangeCount
     case cumulativeElevationGain
-    case automotiveDistance
-    case automotiveTime
     case timeOutside
     // 通話・音声
     case callCount
@@ -90,8 +88,6 @@ extension ActivityType {
         case .videoRecordingDuration:        return "動画撮影時間"
         case .significantLocationChangeCount: return "訪問場所の変化回数"
         case .cumulativeElevationGain:       return "累積獲得標高（m）"
-        case .automotiveDistance:            return "車での移動距離（km）"
-        case .automotiveTime:                return "車での移動時間（分）"
         case .timeOutside:                   return "外出時間（分）"
         case .callCount:                     return "通話回数"
         case .callDuration:                  return "通話時間"
@@ -119,12 +115,12 @@ extension ActivityType {
             return "回"
         case .walkingRunningDistance, .cyclingDistance, .cumulativeElevationGain:
             return "m"
-        case .swimmingDistance, .automotiveDistance:
+        case .swimmingDistance:
             return "km"
         case .activeEnergyBurned, .basalEnergyBurned:
             return "kcal"
         case .exerciseTime, .sleepDuration, .standTime, .daylightTime,
-             .automotiveTime, .timeOutside, .callDuration,
+             .timeOutside, .callDuration,
              .earphoneUsageTime, .chargingTime:
             return "分"
         case .videoRecordingDuration:
@@ -170,8 +166,7 @@ extension ActivityType {
             return .healthKit
         case .photoLibraryAddCount, .screenshotCount, .videoRecordingDuration:
             return .photoMedia
-        case .significantLocationChangeCount, .cumulativeElevationGain,
-             .automotiveDistance, .automotiveTime, .timeOutside:
+        case .significantLocationChangeCount, .cumulativeElevationGain, .timeOutside:
             return .locationMotion
         case .callCount, .callDuration, .earphoneUsageTime:
             return .callAudio
@@ -213,7 +208,7 @@ extension ActivityType {
              .significantLocationChangeCount, .timeOutside, .bluetoothConnectionCount:
             return .high
         case .photoLibraryAddCount, .screenshotCount, .videoRecordingDuration,
-             .cumulativeElevationGain, .automotiveDistance, .automotiveTime,
+             .cumulativeElevationGain,
              .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount:
             return .medium
         case .callCount, .callDuration, .earphoneUsageTime,
@@ -291,7 +286,7 @@ extension ActivityType {
 
     static var bgRefreshTypes: [ActivityType] {
         [.photoLibraryAddCount, .screenshotCount, .videoRecordingDuration,
-         .cumulativeElevationGain, .automotiveDistance, .automotiveTime,
+         .cumulativeElevationGain,
          .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount]
     }
 
