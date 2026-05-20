@@ -7,6 +7,7 @@ struct HomeView: View {
 
     @Query private var configs: [ActivitySyncConfig]
     @Query private var errors: [ActivitySyncError]
+    @Query private var records: [ActivitySyncRecord]
 
     private var todayDateString: String {
         DateFormatter.pixelaDate.string(from: .now)
@@ -86,10 +87,13 @@ struct HomeView: View {
             $0.dateString == todayDateString &&
             (lastViewedAt == nil || $0.occurredAt > lastViewedAt!)
         }.count
+        let record = records.first { $0.activityType == type.rawValue }
+        let todaySentValue: Double? = (record != nil && !record!.requiresReset) ? record!.lastSentValue : nil
         return ActivityRowView(
             activityType: type,
             config: config,
-            todayErrorCount: todayErrorCount
+            todayErrorCount: todayErrorCount,
+            todaySentValue: todaySentValue
         )
     }
 }

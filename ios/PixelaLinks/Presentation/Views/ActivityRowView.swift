@@ -20,6 +20,7 @@ struct ActivityRowView: View {
     let activityType: ActivityType
     let config: ActivitySyncConfig?
     let todayErrorCount: Int
+    var todaySentValue: Double? = nil
 
     private var isEnabled: Bool { config?.isEnabled == true }
     private var isConfigured: Bool { config != nil }
@@ -63,8 +64,21 @@ struct ActivityRowView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Color.red.opacity(0.1), in: Capsule())
+            } else if let value = todaySentValue {
+                Text("\(formatValue(value)) \(activityType.unit)")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.green.opacity(0.1), in: Capsule())
             }
         }
         .padding(.vertical, 2)
+    }
+
+    private func formatValue(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(value))
+            : String(format: "%.2f", value)
     }
 }
