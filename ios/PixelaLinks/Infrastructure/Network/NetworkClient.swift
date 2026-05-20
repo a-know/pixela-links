@@ -10,5 +10,9 @@ enum NetworkClient {
         return URLSession(configuration: config)
     }()
 
-    static let foregroundSession = URLSession.shared
+    static let foregroundSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 120
+        return URLSession(configuration: config)
+    }()
 }
