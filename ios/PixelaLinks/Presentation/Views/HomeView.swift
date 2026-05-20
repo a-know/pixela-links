@@ -80,8 +80,11 @@ struct HomeView: View {
 
     private func rowView(for type: ActivityType) -> some View {
         let config = configs.first { $0.activityType == type.rawValue }
+        let lastViewedAt = config?.lastViewedAt
         let todayErrorCount = errors.filter {
-            $0.activityType == type.rawValue && $0.dateString == todayDateString
+            $0.activityType == type.rawValue &&
+            $0.dateString == todayDateString &&
+            (lastViewedAt == nil || $0.occurredAt > lastViewedAt!)
         }.count
         return ActivityRowView(
             activityType: type,

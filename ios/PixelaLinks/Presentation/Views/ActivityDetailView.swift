@@ -197,6 +197,7 @@ struct ActivityDetailView: View {
             if viewModel.isEnabled {
                 Task { await viewModel.loadGraphs() }
             }
+            markErrorsAsViewed()
         }
     }
 
@@ -311,6 +312,16 @@ struct ActivityDetailView: View {
     }
 
     // MARK: - Helpers
+
+    private func markErrorsAsViewed() {
+        let rawValue = activityType.rawValue
+        let descriptor = FetchDescriptor<ActivitySyncConfig>(
+            predicate: #Predicate { $0.activityType == rawValue }
+        )
+        guard let config = try? modelContext.fetch(descriptor).first else { return }
+        config.lastViewedAt = .now
+        try? modelContext.save()
+    }
 
     private func formatValue(_ value: Double) -> String {
         value.truncatingRemainder(dividingBy: 1) == 0

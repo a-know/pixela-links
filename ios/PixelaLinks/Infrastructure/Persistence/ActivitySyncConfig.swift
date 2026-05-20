@@ -7,6 +7,7 @@ final class ActivitySyncConfig {
     var isEnabled: Bool
     var pixelaGraphID: String
     var isBackfillCompleted: Bool = false
+    var lastViewedAt: Date? = nil
     var createdAt: Date
     var updatedAt: Date
 
