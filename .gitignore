@@ -63,3 +63,6 @@ fastlane/test_output
 
 # XcodeGen — .xcodeproj は project.yml から再生成できるため除外
 ios/*.xcodeproj
+
+# macOS
+.DS_Store
