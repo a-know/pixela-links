@@ -9,7 +9,7 @@ struct CalendarDataSource: ActivityDataSource {
         switch type {
         case .calendarEventCount:
             try await store.requestFullAccessToEvents()
-        case .completedReminderCount:
+        case .completedReminderCount, .createdReminderCount:
             try await store.requestFullAccessToReminders()
         default:
             break
@@ -28,6 +28,10 @@ struct CalendarDataSource: ActivityDataSource {
         case .completedReminderCount:
             guard EKEventStore.authorizationStatus(for: .reminder) == .fullAccess else { return 0 }
             return try await countCompletedReminders(in: today, store: store)
+
+        case .createdReminderCount:
+            guard EKEventStore.authorizationStatus(for: .reminder) == .fullAccess else { return 0 }
+            return try await countCreatedReminders(in: today, store: store)
 
         default:
             return 0
@@ -52,6 +56,22 @@ struct CalendarDataSource: ActivityDataSource {
         return try await withCheckedThrowingContinuation { continuation in
             store.fetchReminders(matching: pred) { reminders in
                 continuation.resume(returning: Double(reminders?.count ?? 0))
+            }
+        }
+    }
+
+    private func countCreatedReminders(
+        in day: DateInterval,
+        store: EKEventStore
+    ) async throws -> Double {
+        let pred = store.predicateForReminders(in: nil)
+        return try await withCheckedThrowingContinuation { continuation in
+            store.fetchReminders(matching: pred) { reminders in
+                let count = reminders?.filter { reminder in
+                    guard let created = reminder.creationDate else { return false }
+                    return day.contains(created)
+                }.count ?? 0
+                continuation.resume(returning: Double(count))
             }
         }
     }

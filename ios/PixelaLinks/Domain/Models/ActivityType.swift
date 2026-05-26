@@ -46,6 +46,7 @@ enum ActivityType: String, CaseIterable, Identifiable {
     // 予定・タスク
     case calendarEventCount
     case completedReminderCount
+    case createdReminderCount
     // デバイス状態
     case chargingTime
     case orientationChangeCount
@@ -96,6 +97,7 @@ extension ActivityType {
         case .wifiNetworkChangeCount:        return "Wi-Fiネットワーク切り替え回数"
         case .calendarEventCount:            return "カレンダー予定数"
         case .completedReminderCount:        return "完了リマインダー数"
+        case .createdReminderCount:          return "作成リマインダー数"
         case .chargingTime:                  return "充電時間"
         case .orientationChangeCount:        return "画面の向き変化回数"
         }
@@ -110,7 +112,7 @@ extension ActivityType {
              .photoLibraryAddCount, .screenshotCount,
              .significantLocationChangeCount, .callCount,
              .bluetoothConnectionCount, .wifiNetworkChangeCount,
-             .calendarEventCount, .completedReminderCount,
+             .calendarEventCount, .completedReminderCount, .createdReminderCount,
              .orientationChangeCount:
             return "回"
         case .walkingRunningDistance, .cyclingDistance, .cumulativeElevationGain:
@@ -172,7 +174,7 @@ extension ActivityType {
             return .callAudio
         case .bluetoothConnectionCount, .wifiNetworkChangeCount:
             return .connectivity
-        case .calendarEventCount, .completedReminderCount:
+        case .calendarEventCount, .completedReminderCount, .createdReminderCount:
             return .calendarTask
         case .chargingTime, .orientationChangeCount:
             return .deviceState
@@ -209,7 +211,7 @@ extension ActivityType {
             return .high
         case .photoLibraryAddCount, .screenshotCount, .videoRecordingDuration,
              .cumulativeElevationGain,
-             .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount:
+             .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount, .createdReminderCount:
             return .medium
         case .callCount, .callDuration, .earphoneUsageTime,
              .chargingTime, .orientationChangeCount:
@@ -228,7 +230,7 @@ extension ActivityType {
              .photoLibraryAddCount, .screenshotCount,
              .significantLocationChangeCount, .callCount,
              .bluetoothConnectionCount, .wifiNetworkChangeCount,
-             .calendarEventCount, .completedReminderCount,
+             .calendarEventCount, .completedReminderCount, .createdReminderCount,
              .orientationChangeCount:
             return true
         default:
@@ -287,7 +289,7 @@ extension ActivityType {
     static var bgRefreshTypes: [ActivityType] {
         [.photoLibraryAddCount, .screenshotCount, .videoRecordingDuration,
          .cumulativeElevationGain,
-         .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount]
+         .wifiNetworkChangeCount, .calendarEventCount, .completedReminderCount, .createdReminderCount]
     }
 
     static var bluetoothTypes: [ActivityType] {
