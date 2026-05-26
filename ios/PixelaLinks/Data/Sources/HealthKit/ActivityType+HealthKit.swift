@@ -18,6 +18,7 @@ extension ActivityType {
         case .swimmingDistance:           return HKQuantityType(.distanceSwimming)
         case .loudEnvironmentCount:       return HKCategoryType(.environmentalAudioExposureEvent)
         case .headphoneLoudExposureCount: return HKCategoryType(.headphoneAudioExposureEvent)
+        case .vo2Max:                     return HKQuantityType(.vo2Max)
         case .physicalEffort:             return HKQuantityType(.physicalEffort)
         case .heartRate:                  return HKQuantityType(.heartRate)
         case .oxygenSaturation:           return HKQuantityType(.oxygenSaturation)

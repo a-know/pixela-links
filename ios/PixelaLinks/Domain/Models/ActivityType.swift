@@ -18,6 +18,7 @@ enum ActivityType: String, CaseIterable, Identifiable {
     case loudEnvironmentCount
     case headphoneLoudExposureCount
     // HealthKit（平均値）
+    case vo2Max
     case physicalEffort
     case heartRate
     case oxygenSaturation
@@ -74,6 +75,7 @@ extension ActivityType {
         case .swimmingDistance:              return "水泳距離"
         case .loudEnvironmentCount:          return "大音量環境曝露回数"
         case .headphoneLoudExposureCount:    return "ヘッドフォン大音量曝露回数"
+        case .vo2Max:                        return "最大酸素摂取量（ml/kg/min）"
         case .physicalEffort:                return "身体エフォート（METs）"
         case .heartRate:                     return "心拍数（bpm）"
         case .oxygenSaturation:              return "血中酸素濃度（%）"
@@ -139,6 +141,8 @@ extension ActivityType {
             return "m/s"
         case .walkingStepLength:
             return "cm"
+        case .vo2Max:
+            return "ml/kg/min"
         }
     }
 }
@@ -162,7 +166,7 @@ extension ActivityType {
              .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
-             .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
+             .vo2Max, .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
              .walkingHeartRateAverage, .restingHeartRate, .walkingSpeed,
              .walkingDoubleSupportPercentage, .walkingStepLength, .walkingAsymmetryPercentage:
             return .healthKit
@@ -204,7 +208,7 @@ extension ActivityType {
              .activeEnergyBurned, .basalEnergyBurned, .exerciseTime, .sleepDuration, .standTime,
              .daylightTime, .handwashingCount, .fallCount, .cyclingDistance,
              .swimmingDistance, .loudEnvironmentCount, .headphoneLoudExposureCount,
-             .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
+             .vo2Max, .physicalEffort, .heartRate, .oxygenSaturation, .heartRateVariabilitySDNN,
              .walkingHeartRateAverage, .restingHeartRate, .walkingSpeed,
              .walkingDoubleSupportPercentage, .walkingStepLength, .walkingAsymmetryPercentage,
              .significantLocationChangeCount, .timeOutside, .bluetoothConnectionCount:
@@ -240,7 +244,7 @@ extension ActivityType {
 
     var isAverageMetric: Bool {
         switch self {
-        case .physicalEffort, .heartRate, .oxygenSaturation,
+        case .vo2Max, .physicalEffort, .heartRate, .oxygenSaturation,
              .heartRateVariabilitySDNN, .walkingHeartRateAverage,
              .restingHeartRate, .walkingSpeed,
              .walkingDoubleSupportPercentage, .walkingStepLength,
@@ -259,7 +263,7 @@ extension ActivityType {
         switch self {
         case .standTime, .handwashingCount, .fallCount,
              .cyclingDistance, .swimmingDistance,
-             .physicalEffort, .heartRate, .oxygenSaturation,
+             .vo2Max, .physicalEffort, .heartRate, .oxygenSaturation,
              .heartRateVariabilitySDNN, .walkingHeartRateAverage, .restingHeartRate:
             return true
         default:

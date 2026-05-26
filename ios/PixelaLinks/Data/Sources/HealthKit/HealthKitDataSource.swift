@@ -57,6 +57,9 @@ struct HealthKitDataSource: ActivityDataSource {
         case .headphoneLoudExposureCount:
             return try await queryCategoryCount(.init(.headphoneAudioExposureEvent), day: today)
 
+        case .vo2Max:
+            return try await queryAverage(.init(.vo2Max), unit: HKUnit(from: "ml/(kg*min)"), day: today)
+
         case .physicalEffort:
             return try await queryAverage(.init(.physicalEffort), unit: HKUnit(from: "kcal/(kg*hr)"), day: today)
 
@@ -131,6 +134,8 @@ struct HealthKitDataSource: ActivityDataSource {
             return try await queryDailyCategoryCount(.init(.environmentalAudioExposureEvent), from: from, to: to)
         case .headphoneLoudExposureCount:
             return try await queryDailyCategoryCount(.init(.headphoneAudioExposureEvent), from: from, to: to)
+        case .vo2Max:
+            return try await queryDailyCollection(.init(.vo2Max), options: .discreteAverage, unit: HKUnit(from: "ml/(kg*min)"), from: from, to: to)
         case .physicalEffort:
             return try await queryDailyCollection(.init(.physicalEffort), options: .discreteAverage, unit: HKUnit(from: "kcal/(kg*hr)"), from: from, to: to)
         case .heartRate:
