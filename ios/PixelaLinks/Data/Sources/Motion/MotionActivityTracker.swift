@@ -12,6 +12,11 @@ final class MotionActivityTracker {
     private(set) var cumulativeGainMeters: Double = 0
     private var resetDateString = ""
 
+    var todayGainMeters: Double {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        return resetDateString == today ? cumulativeGainMeters : 0
+    }
+
     func start() {
         guard CMAltimeter.isRelativeAltitudeAvailable() else { return }
         altimeter.startRelativeAltitudeUpdates(to: altimeterQueue) { [weak self] data, error in
@@ -61,7 +66,7 @@ struct MotionDataSource: ActivityDataSource, @unchecked Sendable {
     func fetchTodayTotal() async throws -> Double {
         switch type {
         case .cumulativeElevationGain:
-            return await MainActor.run { tracker.cumulativeGainMeters }
+            return await MainActor.run { tracker.todayGainMeters }
         default:
             return 0
         }

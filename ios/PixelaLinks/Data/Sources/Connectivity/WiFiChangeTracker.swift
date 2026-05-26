@@ -10,6 +10,11 @@ final class WiFiChangeTracker {
     private(set) var changeCount: Double = 0
     private var resetDateString = ""
 
+    var todayChangeCount: Double {
+        let today = DateFormatter.pixelaDate.string(from: .now)
+        return resetDateString == today ? changeCount : 0
+    }
+
     func start() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
@@ -49,6 +54,6 @@ struct WiFiDataSource: ActivityDataSource, @unchecked Sendable {
     func requestAuthorization() async throws {}
 
     func fetchTodayTotal() async throws -> Double {
-        await MainActor.run { tracker.changeCount }
+        await MainActor.run { tracker.todayChangeCount }
     }
 }

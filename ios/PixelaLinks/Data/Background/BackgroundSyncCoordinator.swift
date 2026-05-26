@@ -44,7 +44,9 @@ actor BackgroundSyncCoordinator {
         guard let source = dataSources[type] else { return }
 
         do {
+            let dayBeforeFetch = Calendar.current.startOfDay(for: .now)
             let rawTotal = try await source.fetchTodayTotal()
+            guard Calendar.current.startOfDay(for: .now) == dayBeforeFetch else { return }
 
             if type.isAverageMetric {
                 guard rawTotal > 0 else { return }
