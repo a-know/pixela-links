@@ -1,0 +1,48 @@
+rules:
+  - id: swift-hardcoded-api-token
+    languages:
+      - swift
+    severity: ERROR
+    message: This looks like a hardcoded secret. Move credentials to Keychain, environment configuration, or another secret store.
+    pattern-regex: (?i)(api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]\s*["'][A-Za-z0-9_./+=-]{16,}["']
+
+  - id: swift-insecure-md5
+    languages:
+      - swift
+    severity: ERROR
+    message: MD5 is not safe for security-sensitive hashing.
+    pattern-either:
+      - pattern: Insecure.MD5.hash(...)
+      - pattern: CryptoKit.Insecure.MD5.hash(...)
+
+  - id: swift-insecure-sha1
+    languages:
+      - swift
+    severity: ERROR
+    message: SHA-1 is not safe for security-sensitive hashing.
+    pattern-either:
+      - pattern: Insecure.SHA1.hash(...)
+      - pattern: CryptoKit.Insecure.SHA1.hash(...)
+
+  - id: swift-insecure-random
+    languages:
+      - swift
+    severity: ERROR
+    message: SystemRandomNumberGenerator is preferable for non-security randomness only. Use SecRandomCopyBytes for tokens, secrets, or security-sensitive randomness.
+    pattern-either:
+      - pattern: arc4random(...)
+      - pattern: arc4random_uniform(...)
+
+  - id: swift-disabled-file-protection
+    languages:
+      - swift
+    severity: ERROR
+    message: Avoid disabling file protection for persisted data.
+    pattern: FileProtectionType.none
+
+  - id: generic-hardcoded-secret
+    languages:
+      - generic
+    severity: ERROR
+    message: This looks like a hardcoded secret. Move credentials to Keychain, environment configuration, or another secret store.
+    pattern-regex: (?i)(api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]\s*['"][A-Za-z0-9_./+=-]{16,}['"]
