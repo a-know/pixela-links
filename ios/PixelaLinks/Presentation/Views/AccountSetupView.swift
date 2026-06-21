@@ -49,8 +49,32 @@ struct AccountSetupView: View {
                     }
                 }
 
+                if existing != nil {
+                    Section("通知") {
+                        Toggle(
+                            "送信状況の確認を定期的にリマインドする",
+                            isOn: Binding(
+                                get: { viewModel.isSendStatusReminderEnabled },
+                                set: { enabled in
+                                    Task { await viewModel.setSendStatusReminderEnabled(enabled) }
+                                }
+                            )
+                        )
+
+                        Text("午前6時から午後10時まで、2時間おきに送信状況の確認を促す通知を送ります。")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+
+                        if let message = viewModel.reminderErrorMessage {
+                            Label(message, systemImage: "exclamationmark.triangle")
+                                .font(.footnote)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                }
+
             }
-            .navigationTitle("Pixelaアカウント設定")
+            .navigationTitle("設定")
             .onAppear {
                 if let existing { viewModel.prefill(with: existing) }
             }

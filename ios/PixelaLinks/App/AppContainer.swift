@@ -16,6 +16,7 @@ final class AppContainer {
             migrateKeychainAccessibilityIfNeeded()
             await BackgroundSyncCoordinator.shared.configure(modelContainer: modelContainer)
             await registerAllDataSources()
+            await SendStatusReminderService.restoreScheduleIfNeeded()
             startBackgroundManagers()
             BackgroundTaskManager.shared.scheduleNextRefresh()
         }
