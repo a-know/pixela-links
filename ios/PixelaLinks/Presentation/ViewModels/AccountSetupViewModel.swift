@@ -10,6 +10,8 @@ final class AccountSetupViewModel {
     var isValidated = false
     var validationMessage: String?
     var validationIsSuccess = false
+    var isSendStatusReminderEnabled = SendStatusReminderService.isEnabled
+    var reminderErrorMessage: String?
 
     var canValidate: Bool { !username.isEmpty && !token.isEmpty && !isValidating }
     var savedConfig: PixelaAccountConfig? = nil
@@ -35,6 +37,17 @@ final class AccountSetupViewModel {
         isValidated = false
         validationIsSuccess = false
         validationMessage = nil
+    }
+
+    func setSendStatusReminderEnabled(_ enabled: Bool) async {
+        reminderErrorMessage = nil
+        do {
+            try await SendStatusReminderService.setEnabled(enabled)
+            isSendStatusReminderEnabled = enabled
+        } catch {
+            isSendStatusReminderEnabled = false
+            reminderErrorMessage = error.localizedDescription
+        }
     }
 
     func validate() async {
